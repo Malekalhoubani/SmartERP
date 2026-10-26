@@ -12,9 +12,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Repositories\Identity\SmartERP.Identity.Repositories\SmartERP.Identity.Repositories.csproj" />
+    <ProjectReference Include="..\..\..\Services\Identity\SmartERP.Identity.Services\SmartERP.Identity.Services.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MailKit" Version="4.18.2" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.22" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.22">
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
