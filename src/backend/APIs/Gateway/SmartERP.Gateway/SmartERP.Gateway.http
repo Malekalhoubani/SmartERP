@@ -1,0 +1,6 @@
+@SmartERP.Gateway_HostAddress = http://localhost:5031
+
+GET {{SmartERP.Gateway_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

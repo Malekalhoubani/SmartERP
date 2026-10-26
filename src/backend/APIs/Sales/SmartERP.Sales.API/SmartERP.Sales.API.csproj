@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Services\Sales\SmartERP.Sales.Services\SmartERP.Sales.Services.csproj" />
+    <ProjectReference Include="..\..\..\DataAccess\Sales\SmartERP.Sales.DataAccess\SmartERP.Sales.DataAccess.csproj" />
+    <ProjectReference Include="..\..\..\Config\SmartERP.ServiceDefaults\SmartERP.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+</Project>
