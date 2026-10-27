@@ -2,7 +2,8 @@ using FluentValidation;
 using SmartERP.Identity.Services.Features.Authentication.Register;
 using SmartERP.Identity.Services.Features.Authentication.Register.DTO;
 using SmartERP.ServiceDefaults.FoundationOptions;
-
+using SmartERP.Identity.Services.Features.Authentication.Login;
+using SmartERP.Identity.Services.Features.Authentication.Login.DTO;
 namespace SmartERP.Identity.API.Endpoints;
 
 public static class IdentityEndpoints
@@ -21,6 +22,11 @@ public static class IdentityEndpoints
 
         authenticationGroup
             .MapGet("/confirm-email", ConfirmEmailAsync)
+            .RequireRateLimiting(
+                ServiceDefaultsExtensions.AuthenticationRateLimitPolicy);
+
+        authenticationGroup
+            .MapPost("/login", LoginAsync)
             .RequireRateLimiting(
                 ServiceDefaultsExtensions.AuthenticationRateLimitPolicy);
 
@@ -79,5 +85,36 @@ public static class IdentityEndpoints
         return Results.Ok(
             new ConfirmEmailResponseDto(
                 "Email confirmed successfully."));
+    }
+
+    private static async Task<IResult> LoginAsync(
+        LoginRequestDto requestDto,
+        IValidator<LoginRequestDto> validator,
+        ILoginService loginService,
+        CancellationToken cancellationToken)
+    {
+        var validationResult = await validator.ValidateAsync(
+            requestDto,
+            cancellationToken);
+
+        if (!validationResult.IsValid)
+        {
+            var validationErrors = validationResult.Errors
+                .GroupBy(error => error.PropertyName)
+                .ToDictionary(
+                    group => group.Key,
+                    group => group
+                        .Select(error => error.ErrorMessage)
+                        .Distinct()
+                        .ToArray());
+
+            return Results.ValidationProblem(validationErrors);
+        }
+
+        var response = await loginService.LoginAsync(
+            requestDto,
+            cancellationToken);
+
+        return Results.Ok(response);
     }
 }
