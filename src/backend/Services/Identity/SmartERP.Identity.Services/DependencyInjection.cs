@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using SmartERP.Identity.Services.Features.Authentication.Login;
 using SmartERP.Identity.Services.Features.Authentication.Register;
 using SmartERP.Identity.Services.Features.Authorization.Implementations;
+using SmartERP.Identity.Services.Features.Authentication.ForgotPassword.Implementations;
+using SmartERP.Identity.Services.Interfaces.Authentication;
 using SmartERP.Identity.Services.Interfaces.Authorization;
 
 namespace SmartERP.Identity.Services;
@@ -15,6 +17,7 @@ public static class DependencyInjection
 
         services.AddScoped<IRegisterService, RegisterService>();
         services.AddScoped<ILoginService, LoginService>();
+        services.AddScoped<IForgotPasswordService, ForgotPasswordService>();
         services.AddScoped<IRolePermissionService, RolePermissionService>();
 
         return services;

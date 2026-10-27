@@ -5,9 +5,13 @@ using SmartERP.ServiceDefaults.FoundationOptions;
 using SmartERP.Identity.Services.Features.Authentication.Login;
 using SmartERP.Identity.Services.Features.Authentication.Login.DTO;
 using Microsoft.Extensions.Options;
+using Microsoft.AspNetCore.Mvc;
 using SmartERP.Identity.DataAccess.Options;
 using SmartERP.Identity.Services.Features.Authentication.Sessions;
 using System.Security.Claims;
+using SmartERP.Identity.API.Services;
+using SmartERP.Identity.Services.Features.Authentication.ForgotPassword.DTO;
+using SmartERP.Identity.Services.Interfaces.Authentication;
 namespace SmartERP.Identity.API.Endpoints;
 
 public static class IdentityEndpoints
@@ -35,6 +39,13 @@ public static class IdentityEndpoints
             .AddEndpointFilter<ValidationFilter<LoginRequestDto>>()
             .RequireRateLimiting(
                 ServiceDefaultsExtensions.AuthenticationRateLimitPolicy);
+
+        authenticationGroup
+            .MapPost("/forgot-password", ForgotPasswordAsync)
+            .AddEndpointFilter<ValidationFilter<ForgotPasswordRequestDto>>()
+            .RequireRateLimiting(
+                ServiceDefaultsExtensions.AuthenticationRateLimitPolicy)
+            .AllowAnonymous();
 
         authenticationGroup
             .MapPost("/refresh", RefreshAsync)
@@ -116,6 +127,33 @@ public static class IdentityEndpoints
             result.RefreshTokenExpiresAtUtc);
 
         return Results.Ok(result.Response);
+    }
+
+    private static async Task<IResult> ForgotPasswordAsync(
+        ForgotPasswordRequestDto requestDto,
+        IForgotPasswordService forgotPasswordService,
+        FrontendOriginResolver frontendOriginResolver,
+        HttpRequest request,
+        CancellationToken cancellationToken)
+    {
+        var frontendOrigin = frontendOriginResolver.Resolve(request);
+
+        if (frontendOrigin is null)
+        {
+            return Results.BadRequest(new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Invalid frontend origin",
+                Detail = "The request origin is missing or is not allowed."
+            });
+        }
+
+        var response = await forgotPasswordService.ForgotPasswordAsync(
+            requestDto,
+            frontendOrigin,
+            cancellationToken);
+
+        return Results.Ok(response);
     }
 
     private static async Task<IResult> RefreshAsync(
