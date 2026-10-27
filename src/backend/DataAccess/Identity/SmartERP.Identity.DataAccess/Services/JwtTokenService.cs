@@ -22,7 +22,8 @@ public sealed class JwtTokenService : ITokenService
 
     public AccessTokenResult GenerateAccessToken(
         ApplicationUser user,
-        IReadOnlyCollection<string> roles)
+        IReadOnlyCollection<string> roles,
+        long sessionId)
     {
         var issuedAtUtc = DateTimeOffset.UtcNow;
 
@@ -46,6 +47,11 @@ public sealed class JwtTokenService : ITokenService
             new(
                 JwtRegisteredClaimNames.Jti,
                 Guid.NewGuid().ToString("N")),
+
+            new(
+                "sid",
+                sessionId.ToString(),
+                ClaimValueTypes.Integer64),
 
             new(
                 JwtRegisteredClaimNames.Iat,

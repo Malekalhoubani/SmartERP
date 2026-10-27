@@ -10,7 +10,8 @@ public sealed class IdentityApplicationDbContext : IdentityDbContext<Application
     public IdentityApplicationDbContext( DbContextOptions<IdentityApplicationDbContext> options): base(options)
     {
     }
-
+    public DbSet<UserSession> UserSessions => Set<UserSession>();
+    public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

@@ -13,5 +13,6 @@ namespace SmartERP.Identity.Domain.Entities
         public bool IsActive { get; set; } = true;
         public DateTimeOffset CreatedAtUtc { get; set; } =DateTimeOffset.UtcNow;
         public DateTimeOffset? UpdatedAtUtc { get; set; }
+        public ICollection<UserSession> Sessions { get; set; } =new List<UserSession>();
     }
 }

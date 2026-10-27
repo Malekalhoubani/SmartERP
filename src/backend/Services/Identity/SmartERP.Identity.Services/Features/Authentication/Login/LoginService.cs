@@ -6,19 +6,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SmartERP.Identity.Services.Interfaces;
+using SmartERP.Identity.Services.Features.Authentication.Login.Models;
+using SmartERP.Identity.Services.Features.Authentication.Sessions;
 namespace SmartERP.Identity.Services.Features.Authentication.Login
 {
      public sealed class LoginService : ILoginService
     {
         private readonly IIdentityRepository _identityRepository;
         private readonly ITokenService _tokenService;
-        public LoginService(IIdentityRepository identityRepository, ITokenService tokenService)
+        private readonly IAuthenticationSessionService _sessionService;
+
+        public LoginService(
+            IIdentityRepository identityRepository,
+            ITokenService tokenService,
+            IAuthenticationSessionService sessionService)
         {
             _identityRepository = identityRepository;
             _tokenService = tokenService;
+            _sessionService = sessionService;
         }
 
-        public async Task<LoginResponseDto> LoginAsync(LoginRequestDto requestDto, CancellationToken cancellationToken = default)
+        public async Task<LoginResult> LoginAsync(
+            LoginRequestDto requestDto,
+            string? ipAddress,
+            string? userAgent,
+            CancellationToken cancellationToken = default)
         {
            var email = requestDto.Email.Trim();
 
@@ -52,16 +64,26 @@ namespace SmartERP.Identity.Services.Features.Authentication.Login
                 user,
                 cancellationToken);
 
+            var session = await _sessionService.CreateSessionAsync(
+                user,
+                ipAddress,
+                userAgent,
+                cancellationToken);
+
             var accessToken = _tokenService.GenerateAccessToken(
                 user,
-                roles);
+                roles,
+                session.SessionId);
 
-            return new LoginResponseDto(
-                user.Id,
-                user.FullName,
-                user.Email!,
-                accessToken.Token,
-                accessToken.Expiration);
+            return new LoginResult(
+                new LoginResponseDto(
+                    user.Id,
+                    user.FullName,
+                    user.Email!,
+                    accessToken.Token,
+                    accessToken.Expiration),
+                session.RefreshToken,
+                session.RefreshTokenExpiresAtUtc);
         }
     }
 }
