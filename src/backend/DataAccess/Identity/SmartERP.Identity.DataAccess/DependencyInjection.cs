@@ -147,18 +147,11 @@ public static class DependencyInjection
                 options => !string.IsNullOrWhiteSpace(options.SenderEmail),
                 "Email:SenderEmail is required.")
             .Validate(
-                options =>
-                    !options.UseAuthentication ||
-                    !string.IsNullOrWhiteSpace(options.Username),
-                "Email:Username is required when authentication is enabled.")
+                options => !string.IsNullOrWhiteSpace(options.Username),
+                "Email:Username is required.")
             .Validate(
-                options =>
-                    !options.UseAuthentication ||
-                    !string.IsNullOrWhiteSpace(options.Password),
-                "Email:Password is required when authentication is enabled.")
-            .Validate(
-                options => options.TimeoutSeconds is > 0 and <= 60,
-                "Email:TimeoutSeconds must be between 1 and 60.")
+                options => !string.IsNullOrWhiteSpace(options.Password),
+                "Email:Password is required.")
             .ValidateOnStart();
 
         services

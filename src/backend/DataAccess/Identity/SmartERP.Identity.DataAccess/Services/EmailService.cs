@@ -31,16 +31,11 @@ public sealed class EmailService : IEmailService
         message.Subject = subject;
         message.Body = new BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
 
-        using var smtpClient = new SmtpClient
-        {
-            Timeout = (int)TimeSpan
-                .FromSeconds(_emailOptions.TimeoutSeconds)
-                .TotalMilliseconds
-        };
+        using var smtpClient = new SmtpClient();
 
         var securityOption = _emailOptions.UseStartTls
             ? SecureSocketOptions.StartTls
-            : SecureSocketOptions.None;
+            : SecureSocketOptions.Auto;
 
         await smtpClient.ConnectAsync(
             _emailOptions.SmtpHost,
@@ -48,13 +43,10 @@ public sealed class EmailService : IEmailService
             securityOption,
             cancellationToken);
 
-        if (_emailOptions.UseAuthentication)
-        {
-            await smtpClient.AuthenticateAsync(
-                _emailOptions.Username,
-                _emailOptions.Password,
-                cancellationToken);
-        }
+        await smtpClient.AuthenticateAsync(
+            _emailOptions.Username,
+            _emailOptions.Password,
+            cancellationToken);
 
         await smtpClient.SendAsync(message, cancellationToken);
         await smtpClient.DisconnectAsync(true, cancellationToken);
