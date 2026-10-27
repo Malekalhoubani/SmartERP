@@ -12,6 +12,7 @@ using SmartERP.Identity.DataAccess.Services;
 using SmartERP.Identity.Domain.Entities;
 using SmartERP.Identity.Repositories.Interfaces;
 using SmartERP.Identity.Services.Interfaces;
+using SmartERP.Identity.Services.Features.Authentication.Sessions;
 
 namespace SmartERP.Identity.DataAccess;
 
@@ -33,6 +34,10 @@ public static class DependencyInjection
 
         var signingKeyBytes =
             GetJwtSigningKey(jwtOptions.SigningKey);
+
+        var refreshTokenSection =
+            configuration.GetRequiredSection(
+                RefreshTokenOptions.SectionName);
 
         services.AddDbContext<IdentityApplicationDbContext>(options =>
         {
@@ -123,6 +128,9 @@ public static class DependencyInjection
             .AddDefaultTokenProviders();
 
         services.AddScoped<IIdentityRepository, IdentityRepository>();
+        services.AddScoped<
+            IAuthenticationSessionRepository,
+            AuthenticationSessionRepository>();
 
         services
             .AddOptions<EmailOptions>()
@@ -162,12 +170,32 @@ public static class DependencyInjection
                 "JWT expiration must be between 1 and 60 minutes.")
             .ValidateOnStart();
 
+        services
+            .AddOptions<RefreshTokenOptions>()
+            .Bind(refreshTokenSection)
+            .Validate(
+                options => options.ExpirationDays is > 0 and <= 90,
+                "RefreshToken:ExpirationDays must be between 1 and 90.")
+            .Validate(
+                options => options.TokenSizeInBytes is >= 32 and <= 128,
+                "RefreshToken:TokenSizeInBytes must be between 32 and 128.")
+            .Validate(
+                options => options.MaxActiveSessionsPerUser is > 0 and <= 20,
+                "RefreshToken:MaxActiveSessionsPerUser must be between 1 and 20.")
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.CookieName),
+                "RefreshToken:CookieName is required.")
+            .ValidateOnStart();
+
         services.Configure<DataProtectionTokenProviderOptions>(options =>
         {
             options.TokenLifespan = TimeSpan.FromHours(24);
         });
 
         services.AddScoped<IEmailService, EmailService>();
+        services.AddScoped<
+            IAuthenticationSessionService,
+            AuthenticationSessionService>();
         services.AddSingleton<ITokenService, JwtTokenService>();
 
         return services;

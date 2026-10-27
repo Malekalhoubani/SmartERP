@@ -53,6 +53,7 @@ namespace SmartERP.ServiceDefaults.FoundationOptions
                            corsSettings.AllowedOrigins)
                        .AllowAnyHeader()
                        .AllowAnyMethod()
+                       .AllowCredentials()
                        .SetPreflightMaxAge(
                            TimeSpan.FromMinutes(10));
                });

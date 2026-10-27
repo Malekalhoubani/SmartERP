@@ -9,6 +9,10 @@ namespace SmartERP.Identity.Services.Features.Authentication.Login
 {
     public interface ILoginService
     {
-        Task<LoginResponseDto>LoginAsync (LoginRequestDto loginRequestDto , CancellationToken cancellationToken = default);
+        Task<Models.LoginResult> LoginAsync(
+            LoginRequestDto loginRequestDto,
+            string? ipAddress,
+            string? userAgent,
+            CancellationToken cancellationToken = default);
     }
 }

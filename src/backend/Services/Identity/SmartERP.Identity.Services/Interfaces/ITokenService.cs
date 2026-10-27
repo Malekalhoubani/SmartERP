@@ -10,6 +10,9 @@ namespace SmartERP.Identity.Services.Interfaces
 {
     public interface ITokenService
     {
-        AccessTokenResult GenerateAccessToken(ApplicationUser user, IReadOnlyCollection<string> roles);
+        AccessTokenResult GenerateAccessToken(
+            ApplicationUser user,
+            IReadOnlyCollection<string> roles,
+            long sessionId);
     }
 }

@@ -4,6 +4,10 @@ using SmartERP.Identity.Services.Features.Authentication.Register.DTO;
 using SmartERP.ServiceDefaults.FoundationOptions;
 using SmartERP.Identity.Services.Features.Authentication.Login;
 using SmartERP.Identity.Services.Features.Authentication.Login.DTO;
+using Microsoft.Extensions.Options;
+using SmartERP.Identity.DataAccess.Options;
+using SmartERP.Identity.Services.Features.Authentication.Sessions;
+using System.Security.Claims;
 namespace SmartERP.Identity.API.Endpoints;
 
 public static class IdentityEndpoints
@@ -31,6 +35,28 @@ public static class IdentityEndpoints
             .AddEndpointFilter<ValidationFilter<LoginRequestDto>>()
             .RequireRateLimiting(
                 ServiceDefaultsExtensions.AuthenticationRateLimitPolicy);
+
+        authenticationGroup
+            .MapPost("/refresh", RefreshAsync)
+            .RequireRateLimiting(
+                ServiceDefaultsExtensions.AuthenticationRateLimitPolicy);
+
+        authenticationGroup
+            .MapPost("/logout", LogoutAsync)
+            .RequireRateLimiting(
+                ServiceDefaultsExtensions.AuthenticationRateLimitPolicy);
+
+        authenticationGroup
+            .MapPost("/logout-all", LogoutAllAsync)
+            .RequireAuthorization();
+
+        authenticationGroup
+            .MapGet("/sessions", GetSessionsAsync)
+            .RequireAuthorization();
+
+        authenticationGroup
+            .MapDelete("/sessions/{sessionId:long}", RevokeSessionAsync)
+            .RequireAuthorization();
 
         return endpoints;
     }
@@ -73,12 +99,208 @@ public static class IdentityEndpoints
     private static async Task<IResult> LoginAsync(
         LoginRequestDto requestDto,
         ILoginService loginService,
+        IOptions<RefreshTokenOptions> refreshTokenOptions,
+        HttpContext httpContext,
         CancellationToken cancellationToken)
     {
-        var response = await loginService.LoginAsync(
+        var result = await loginService.LoginAsync(
             requestDto,
+            GetIpAddress(httpContext),
+            httpContext.Request.Headers.UserAgent.ToString(),
             cancellationToken);
 
-        return Results.Ok(response);
+        WriteRefreshTokenCookie(
+            httpContext.Response,
+            refreshTokenOptions.Value,
+            result.RefreshToken,
+            result.RefreshTokenExpiresAtUtc);
+
+        return Results.Ok(result.Response);
+    }
+
+    private static async Task<IResult> RefreshAsync(
+        IAuthenticationSessionService sessionService,
+        IOptions<RefreshTokenOptions> refreshTokenOptions,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var refreshToken = GetRequiredRefreshToken(
+            httpContext.Request,
+            refreshTokenOptions.Value.CookieName);
+
+        var result = await sessionService.RefreshAsync(
+            refreshToken,
+            GetIpAddress(httpContext),
+            cancellationToken);
+
+        WriteRefreshTokenCookie(
+            httpContext.Response,
+            refreshTokenOptions.Value,
+            result.RefreshToken,
+            result.RefreshTokenExpiresAtUtc);
+
+        return Results.Ok(result.Response);
+    }
+
+    private static async Task<IResult> LogoutAsync(
+        IAuthenticationSessionService sessionService,
+        IOptions<RefreshTokenOptions> refreshTokenOptions,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        if (httpContext.Request.Cookies.TryGetValue(
+                refreshTokenOptions.Value.CookieName,
+                out var refreshToken) &&
+            !string.IsNullOrWhiteSpace(refreshToken))
+        {
+            await sessionService.RevokeByRefreshTokenAsync(
+                refreshToken,
+                GetIpAddress(httpContext),
+                cancellationToken);
+        }
+
+        DeleteRefreshTokenCookie(
+            httpContext.Response,
+            refreshTokenOptions.Value.CookieName);
+
+        return Results.NoContent();
+    }
+
+    private static async Task<IResult> LogoutAllAsync(
+        ClaimsPrincipal user,
+        IAuthenticationSessionService sessionService,
+        IOptions<RefreshTokenOptions> refreshTokenOptions,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        await sessionService.RevokeAllSessionsAsync(
+            GetRequiredIntClaim(user, "sub"),
+            GetIpAddress(httpContext),
+            cancellationToken);
+
+        DeleteRefreshTokenCookie(
+            httpContext.Response,
+            refreshTokenOptions.Value.CookieName);
+
+        return Results.NoContent();
+    }
+
+    private static async Task<IResult> GetSessionsAsync(
+        ClaimsPrincipal user,
+        IAuthenticationSessionService sessionService,
+        CancellationToken cancellationToken)
+    {
+        var sessions = await sessionService.GetSessionsAsync(
+            GetRequiredIntClaim(user, "sub"),
+            GetRequiredLongClaim(user, "sid"),
+            cancellationToken);
+
+        return Results.Ok(sessions);
+    }
+
+    private static async Task<IResult> RevokeSessionAsync(
+        long sessionId,
+        ClaimsPrincipal user,
+        IAuthenticationSessionService sessionService,
+        IOptions<RefreshTokenOptions> refreshTokenOptions,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var userId = GetRequiredIntClaim(user, "sub");
+        var currentSessionId = GetRequiredLongClaim(user, "sid");
+
+        await sessionService.RevokeSessionAsync(
+            userId,
+            sessionId,
+            "Session revoked by user.",
+            GetIpAddress(httpContext),
+            cancellationToken);
+
+        if (sessionId == currentSessionId)
+        {
+            DeleteRefreshTokenCookie(
+                httpContext.Response,
+                refreshTokenOptions.Value.CookieName);
+        }
+
+        return Results.NoContent();
+    }
+
+    private static string GetRequiredRefreshToken(
+        HttpRequest request,
+        string cookieName)
+    {
+        if (!request.Cookies.TryGetValue(cookieName, out var refreshToken) ||
+            string.IsNullOrWhiteSpace(refreshToken))
+        {
+            throw new UnauthorizedAccessException(
+                "Refresh token cookie is required.");
+        }
+
+        return refreshToken;
+    }
+
+    private static int GetRequiredIntClaim(
+        ClaimsPrincipal user,
+        string claimType)
+    {
+        var value = user.FindFirstValue(claimType);
+
+        return int.TryParse(value, out var parsedValue)
+            ? parsedValue
+            : throw new UnauthorizedAccessException(
+                $"Required claim '{claimType}' is missing.");
+    }
+
+    private static long GetRequiredLongClaim(
+        ClaimsPrincipal user,
+        string claimType)
+    {
+        var value = user.FindFirstValue(claimType);
+
+        return long.TryParse(value, out var parsedValue)
+            ? parsedValue
+            : throw new UnauthorizedAccessException(
+                $"Required claim '{claimType}' is missing.");
+    }
+
+    private static string? GetIpAddress(HttpContext httpContext)
+    {
+        return httpContext.Connection.RemoteIpAddress?.ToString();
+    }
+
+    private static void WriteRefreshTokenCookie(
+        HttpResponse response,
+        RefreshTokenOptions options,
+        string refreshToken,
+        DateTimeOffset expiresAtUtc)
+    {
+        response.Cookies.Append(
+            options.CookieName,
+            refreshToken,
+            CreateRefreshTokenCookieOptions(expiresAtUtc));
+    }
+
+    private static void DeleteRefreshTokenCookie(
+        HttpResponse response,
+        string cookieName)
+    {
+        response.Cookies.Delete(
+            cookieName,
+            CreateRefreshTokenCookieOptions(DateTimeOffset.UnixEpoch));
+    }
+
+    private static CookieOptions CreateRefreshTokenCookieOptions(
+        DateTimeOffset expiresAtUtc)
+    {
+        return new CookieOptions
+        {
+            HttpOnly = true,
+            Secure = true,
+            SameSite = SameSiteMode.Strict,
+            IsEssential = true,
+            Path = "/api/auth",
+            Expires = expiresAtUtc
+        };
     }
 }
