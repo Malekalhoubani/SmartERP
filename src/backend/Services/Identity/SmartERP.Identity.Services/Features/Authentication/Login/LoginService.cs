@@ -5,15 +5,17 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using SmartERP.Identity.Services.Interfaces;
 namespace SmartERP.Identity.Services.Features.Authentication.Login
 {
      public sealed class LoginService : ILoginService
     {
         private readonly IIdentityRepository _identityRepository;
-        public LoginService(IIdentityRepository identityRepository)
+        private readonly ITokenService _tokenService;
+        public LoginService(IIdentityRepository identityRepository, ITokenService tokenService)
         {
             _identityRepository = identityRepository;
+            _tokenService = tokenService;
         }
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto requestDto, CancellationToken cancellationToken = default)
@@ -46,11 +48,20 @@ namespace SmartERP.Identity.Services.Features.Authentication.Login
                 throw new UnauthorizedAccessException(
                     "Invalid email or password.");
             }
+            var roles = await _identityRepository.GetRolesAsync(
+                user,
+                cancellationToken);
+
+            var accessToken = _tokenService.GenerateAccessToken(
+                user,
+                roles);
 
             return new LoginResponseDto(
-            user.Id,
-            user.FullName,
-            user.Email!);
+                user.Id,
+                user.FullName,
+                user.Email!,
+                accessToken.Token,
+                accessToken.Expiration);
         }
     }
 }

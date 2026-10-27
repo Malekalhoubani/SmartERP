@@ -1,5 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using SmartERP.Identity.DataAccess.Contexts;
@@ -21,6 +24,16 @@ public static class DependencyInjection
             ?? throw new InvalidOperationException(
                 "Connection string 'IdentityDatabase' was not found.");
 
+        var jwtSection =
+            configuration.GetRequiredSection(JwtOptions.SectionName);
+
+        var jwtOptions = jwtSection.Get<JwtOptions>()
+            ?? throw new InvalidOperationException(
+                "JWT configuration was not found.");
+
+        var signingKeyBytes =
+            GetJwtSigningKey(jwtOptions.SigningKey);
+
         services.AddDbContext<IdentityApplicationDbContext>(options =>
         {
             options.UseSqlServer(
@@ -37,7 +50,50 @@ public static class DependencyInjection
                         errorNumbersToAdd: null);
                 });
         });
-        services.AddAuthentication();
+        services
+            .AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme =
+                    JwtBearerDefaults.AuthenticationScheme;
+
+                options.DefaultChallengeScheme =
+                    JwtBearerDefaults.AuthenticationScheme;
+            })
+            .AddJwtBearer(options =>
+            {
+                options.MapInboundClaims = false;
+                options.SaveToken = false;
+
+                options.TokenValidationParameters =
+                    new TokenValidationParameters
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey =
+                            new SymmetricSecurityKey(signingKeyBytes),
+
+                        ValidateIssuer = true,
+                        ValidIssuer = jwtOptions.Issuer,
+
+                        ValidateAudience = true,
+                        ValidAudience = jwtOptions.Audience,
+
+                        ValidateLifetime = true,
+                        RequireExpirationTime = true,
+                        RequireSignedTokens = true,
+
+                        NameClaimType = JwtRegisteredClaimNames.Name,
+                        RoleClaimType = "role",
+
+                        ValidAlgorithms =
+                        [
+                            SecurityAlgorithms.HmacSha256
+                        ],
+
+                        ClockSkew = TimeSpan.FromSeconds(30)
+                    };
+            });
+
+        services.AddAuthorization();
 
         services.AddDataProtection();
 
@@ -88,8 +144,23 @@ public static class DependencyInjection
                 "Email:Password is required.")
             .ValidateOnStart();
 
-
-
+        services
+            .AddOptions<JwtOptions>()
+            .Bind(jwtSection)
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.Issuer),
+                "Jwt:Issuer is required.")
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.Audience),
+                "Jwt:Audience is required.")
+            .Validate(
+                options => !string.IsNullOrWhiteSpace(options.SigningKey),
+                "Jwt:SigningKey is required.")
+            .Validate(
+                options =>
+                    options.AccessTokenExpirationMinutes is > 0 and <= 60,
+                "JWT expiration must be between 1 and 60 minutes.")
+            .ValidateOnStart();
 
         services.Configure<DataProtectionTokenProviderOptions>(options =>
         {
@@ -97,7 +168,36 @@ public static class DependencyInjection
         });
 
         services.AddScoped<IEmailService, EmailService>();
+        services.AddSingleton<ITokenService, JwtTokenService>();
 
         return services;
+    }
+
+    private static byte[] GetJwtSigningKey(string signingKey)
+    {
+        if (string.IsNullOrWhiteSpace(signingKey))
+        {
+            throw new InvalidOperationException(
+                "Jwt:SigningKey is required.");
+        }
+
+        try
+        {
+            var keyBytes = Convert.FromBase64String(signingKey);
+
+            if (keyBytes.Length < 32)
+            {
+                throw new InvalidOperationException(
+                    "JWT signing key must contain at least 256 bits.");
+            }
+
+            return keyBytes;
+        }
+        catch (FormatException exception)
+        {
+            throw new InvalidOperationException(
+                "Jwt:SigningKey must be a valid Base64 value.",
+                exception);
+        }
     }
 }

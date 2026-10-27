@@ -56,10 +56,7 @@ public sealed class IdentityRepository : IIdentityRepository
     }
 
 
-    public async Task<PasswordCheckResult> CheckPasswordAsync(
-    ApplicationUser user,
-    string password,
-    CancellationToken cancellationToken = default)
+    public async Task<PasswordCheckResult> CheckPasswordAsync(ApplicationUser user,string password,CancellationToken cancellationToken = default)
     {
         cancellationToken.ThrowIfCancellationRequested();
 
@@ -75,5 +72,10 @@ public sealed class IdentityRepository : IIdentityRepository
             IsNotAllowed = result.IsNotAllowed
         };
     }
-
+    public async Task<IReadOnlyCollection<string>> GetRolesAsync(ApplicationUser user, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var roles = await _userManager.GetRolesAsync(user);
+        return roles.ToArray();
+    }
 }
