@@ -191,7 +191,7 @@ public static class DependencyInjection
 
         services.Configure<DataProtectionTokenProviderOptions>(options =>
         {
-            options.TokenLifespan = TimeSpan.FromHours(24);
+            options.TokenLifespan = TimeSpan.FromHours(1);
         });
 
         services.AddScoped<IEmailService, EmailService>();

@@ -78,4 +78,10 @@ public sealed class IdentityRepository : IIdentityRepository
         var roles = await _userManager.GetRolesAsync(user);
         return roles.ToArray();
     }
+
+    public async Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user, CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return await _userManager.GeneratePasswordResetTokenAsync(user);
+    }
 }
