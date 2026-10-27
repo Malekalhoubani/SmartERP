@@ -228,9 +228,22 @@ public sealed class AuthenticationSessionService(
         string? ipAddress,
         CancellationToken cancellationToken = default)
     {
-        return sessionRepository.RevokeAllSessionsAsync(
+        return RevokeAllSessionsAsync(
             userId,
             "User logged out from all sessions.",
+            ipAddress,
+            cancellationToken);
+    }
+
+    public Task RevokeAllSessionsAsync(
+        int userId,
+        string reason,
+        string? ipAddress,
+        CancellationToken cancellationToken = default)
+    {
+        return sessionRepository.RevokeAllSessionsAsync(
+            userId,
+            reason,
             Normalize(ipAddress, 45),
             cancellationToken);
     }

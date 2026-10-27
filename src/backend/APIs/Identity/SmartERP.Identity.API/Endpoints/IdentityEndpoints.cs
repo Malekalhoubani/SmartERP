@@ -12,6 +12,10 @@ using System.Security.Claims;
 using SmartERP.Identity.API.Services;
 using SmartERP.Identity.Services.Features.Authentication.ForgotPassword.DTO;
 using SmartERP.Identity.Services.Interfaces.Authentication;
+using SmartERP.Identity.Services.Features.Authentication.ResetPassword.DTO;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Identity;
 namespace SmartERP.Identity.API.Endpoints;
 
 public static class IdentityEndpoints
@@ -43,6 +47,25 @@ public static class IdentityEndpoints
         authenticationGroup
             .MapPost("/forgot-password", ForgotPasswordAsync)
             .AddEndpointFilter<ValidationFilter<ForgotPasswordRequestDto>>()
+            .RequireRateLimiting(
+                ServiceDefaultsExtensions.AuthenticationRateLimitPolicy)
+            .AllowAnonymous();
+
+        authenticationGroup
+            .MapPost("/reset-password", ResetPasswordAsync)
+            .AddEndpointFilter<ValidationFilter<ResetPasswordRequestDto>>()
+            .RequireRateLimiting(
+                ServiceDefaultsExtensions.AuthenticationRateLimitPolicy)
+            .AllowAnonymous();
+
+        authenticationGroup
+            .MapGet("/google", StartGoogleAuthenticationAsync)
+            .RequireRateLimiting(
+                ServiceDefaultsExtensions.AuthenticationRateLimitPolicy)
+            .AllowAnonymous();
+
+        authenticationGroup
+            .MapGet("/google/callback", CompleteGoogleAuthenticationAsync)
             .RequireRateLimiting(
                 ServiceDefaultsExtensions.AuthenticationRateLimitPolicy)
             .AllowAnonymous();
@@ -154,6 +177,117 @@ public static class IdentityEndpoints
             cancellationToken);
 
         return Results.Ok(response);
+    }
+
+    private static async Task<IResult> ResetPasswordAsync(
+        ResetPasswordRequestDto requestDto,
+        IResetPasswordService resetPasswordService,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var response = await resetPasswordService.ResetPasswordAsync(
+            requestDto,
+            GetIpAddress(httpContext),
+            cancellationToken);
+
+        return Results.Ok(response);
+    }
+
+    private static async Task<IResult> StartGoogleAuthenticationAsync(
+        string frontendOrigin,
+        FrontendOriginResolver frontendOriginResolver,
+        IAuthenticationSchemeProvider schemeProvider)
+    {
+        var trustedOrigin = frontendOriginResolver.Resolve(frontendOrigin);
+
+        if (trustedOrigin is null)
+        {
+            return Results.BadRequest(new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Invalid frontend origin",
+                Detail = "The frontend origin is missing or is not allowed."
+            });
+        }
+
+        var googleScheme = await schemeProvider.GetSchemeAsync(
+            GoogleDefaults.AuthenticationScheme);
+
+        if (googleScheme is null)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status503ServiceUnavailable,
+                title: "Google authentication is not configured",
+                detail: "Configure the Google ClientId and ClientSecret using user secrets.");
+        }
+
+        var properties = new AuthenticationProperties
+        {
+            RedirectUri = "/api/auth/google/callback"
+        };
+
+        properties.Items["frontend_origin"] = trustedOrigin;
+
+        return Results.Challenge(
+            properties,
+            [GoogleDefaults.AuthenticationScheme]);
+    }
+
+    private static async Task<IResult> CompleteGoogleAuthenticationAsync(
+        IGoogleAuthenticationService googleAuthenticationService,
+        FrontendOriginResolver frontendOriginResolver,
+        IOptions<RefreshTokenOptions> refreshTokenOptions,
+        HttpContext httpContext,
+        CancellationToken cancellationToken)
+    {
+        var externalResult = await httpContext.AuthenticateAsync(
+            IdentityConstants.ExternalScheme);
+
+        if (!externalResult.Succeeded || externalResult.Principal is null)
+        {
+            return Results.Unauthorized();
+        }
+
+        string? requestedOrigin = null;
+
+        externalResult.Properties?.Items.TryGetValue(
+            "frontend_origin",
+            out requestedOrigin);
+
+        var frontendOrigin = frontendOriginResolver.Resolve(requestedOrigin);
+
+        if (frontendOrigin is null)
+        {
+            await httpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+            return Results.BadRequest(new ProblemDetails
+            {
+                Status = StatusCodes.Status400BadRequest,
+                Title = "Invalid frontend origin",
+                Detail = "The stored frontend origin is missing or is not allowed."
+            });
+        }
+
+        var result = await googleAuthenticationService.AuthenticateAsync(
+            externalResult.Principal,
+            GetIpAddress(httpContext),
+            httpContext.Request.Headers.UserAgent.ToString(),
+            cancellationToken);
+
+        WriteRefreshTokenCookie(
+            httpContext.Response,
+            refreshTokenOptions.Value,
+            result.RefreshToken,
+            result.RefreshTokenExpiresAtUtc);
+
+        await httpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+
+        var redirectUrl =
+            $"{frontendOrigin}/auth/google-callback" +
+            $"#accessToken={Uri.EscapeDataString(result.Response.AccessToken)}" +
+            $"&expiresAtUtc={Uri.EscapeDataString(result.Response.AccessTokenExpiresAtUtc.ToString("O"))}";
+
+        return Results.Redirect(redirectUrl);
     }
 
     private static async Task<IResult> RefreshAsync(

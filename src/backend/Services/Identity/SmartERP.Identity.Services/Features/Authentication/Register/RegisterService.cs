@@ -132,7 +132,7 @@ public sealed class RegisterService : IRegisterService
                         Confirm email
                     </a>
                 </p>
-                <p>This link expires after 24 hours.</p>
+                <p>This link expires after one hour.</p>
                 <p>If you did not create this account, ignore this message.</p>
             </body>
             </html>

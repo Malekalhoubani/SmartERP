@@ -5,10 +5,12 @@ public sealed class FrontendOriginResolver(
 {
     public string? Resolve(HttpRequest request)
     {
-        var requestOrigin = request.Headers.Origin
-            .FirstOrDefault()?
-            .Trim()
-            .TrimEnd('/');
+        return Resolve(request.Headers.Origin.FirstOrDefault());
+    }
+
+    public string? Resolve(string? origin)
+    {
+        var requestOrigin = origin?.Trim().TrimEnd('/');
 
         if (string.IsNullOrWhiteSpace(requestOrigin))
         {
