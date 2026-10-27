@@ -5,6 +5,7 @@ using SmartERP.Identity.Services;
 using SmartERP.Identity.API.Endpoints;
 using SmartERP.Identity.API.Authorization;
 using SmartERP.Identity.API.Services;
+using SmartERP.Identity.API.Authentication;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +15,7 @@ builder.Services.AddIdentityDataAccess(builder.Configuration);
 builder.Services.AddIdentityServices();
 builder.Services.AddPermissionAuthorization();
 builder.Services.AddScoped<FrontendOriginResolver>();
+builder.Services.AddGoogleExternalAuthentication(builder.Configuration);
 
 var app = builder.Build();
 

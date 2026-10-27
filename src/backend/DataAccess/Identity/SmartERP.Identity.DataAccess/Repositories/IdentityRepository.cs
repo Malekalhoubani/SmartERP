@@ -84,4 +84,104 @@ public sealed class IdentityRepository : IIdentityRepository
         cancellationToken.ThrowIfCancellationRequested();
         return await _userManager.GeneratePasswordResetTokenAsync(user);
     }
+
+    public async Task<IdentityOperationResult> ResetPasswordAsync(
+        ApplicationUser user,
+        string token,
+        string newPassword,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        var result = await _userManager.ResetPasswordAsync(
+            user,
+            token,
+            newPassword);
+
+        return ToOperationResult(result);
+    }
+
+    public async Task<ApplicationUser?> FindByExternalLoginAsync(
+        string loginProvider,
+        string providerKey,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        return await _userManager.FindByLoginAsync(
+            loginProvider,
+            providerKey);
+    }
+
+    public async Task<IdentityOperationResult> CreateExternalUserAsync(
+        ApplicationUser user,
+        string loginProvider,
+        string providerKey,
+        string defaultRole,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var createResult = await _userManager.CreateAsync(user);
+
+        if (!createResult.Succeeded)
+        {
+            return ToOperationResult(createResult);
+        }
+
+        var loginResult = await _userManager.AddLoginAsync(
+            user,
+            new UserLoginInfo(loginProvider, providerKey, loginProvider));
+
+        if (!loginResult.Succeeded)
+        {
+            await _userManager.DeleteAsync(user);
+            return ToOperationResult(loginResult);
+        }
+
+        var roleResult = await _userManager.AddToRoleAsync(
+            user,
+            defaultRole);
+
+        if (roleResult.Succeeded)
+        {
+            return IdentityOperationResult.Success();
+        }
+
+        await _userManager.DeleteAsync(user);
+        return ToOperationResult(roleResult);
+    }
+
+    public async Task<IdentityOperationResult> AddExternalLoginAsync(
+        ApplicationUser user,
+        string loginProvider,
+        string providerKey,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        var result = await _userManager.AddLoginAsync(
+            user,
+            new UserLoginInfo(loginProvider, providerKey, loginProvider));
+
+        return ToOperationResult(result);
+    }
+
+    public async Task<IdentityOperationResult> MarkEmailConfirmedAsync(
+        ApplicationUser user,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+        user.EmailConfirmed = true;
+        user.UpdatedAtUtc = DateTimeOffset.UtcNow;
+
+        return ToOperationResult(await _userManager.UpdateAsync(user));
+    }
+
+    private static IdentityOperationResult ToOperationResult(
+        IdentityResult result)
+    {
+        return result.Succeeded
+            ? IdentityOperationResult.Success()
+            : IdentityOperationResult.Failure(
+                result.Errors.Select(error => error.Description));
+    }
 }

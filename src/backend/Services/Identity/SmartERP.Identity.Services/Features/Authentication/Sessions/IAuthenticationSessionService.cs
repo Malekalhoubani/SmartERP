@@ -38,4 +38,10 @@ public interface IAuthenticationSessionService
         int userId,
         string? ipAddress,
         CancellationToken cancellationToken = default);
+
+    Task RevokeAllSessionsAsync(
+        int userId,
+        string reason,
+        string? ipAddress,
+        CancellationToken cancellationToken = default);
 }

@@ -18,5 +18,10 @@ namespace SmartERP.Identity.Repositories.Interfaces
         Task<PasswordCheckResult> CheckPasswordAsync(ApplicationUser user, string password,CancellationToken cancellationToken = default);
         Task<IReadOnlyCollection<string>> GetRolesAsync(ApplicationUser user , CancellationToken cancellationToken = default);
         Task<string> GeneratePasswordResetTokenAsync(ApplicationUser user, CancellationToken cancellationToken = default);
+        Task<IdentityOperationResult> ResetPasswordAsync(ApplicationUser user, string token, string newPassword, CancellationToken cancellationToken = default);
+        Task<ApplicationUser?> FindByExternalLoginAsync(string loginProvider, string providerKey, CancellationToken cancellationToken = default);
+        Task<IdentityOperationResult> CreateExternalUserAsync(ApplicationUser user, string loginProvider, string providerKey, string defaultRole, CancellationToken cancellationToken = default);
+        Task<IdentityOperationResult> AddExternalLoginAsync(ApplicationUser user, string loginProvider, string providerKey, CancellationToken cancellationToken = default);
+        Task<IdentityOperationResult> MarkEmailConfirmedAsync(ApplicationUser user, CancellationToken cancellationToken = default);
     }
 }
