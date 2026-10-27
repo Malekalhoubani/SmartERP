@@ -13,6 +13,7 @@ namespace SmartERP.Identity.Services.Interfaces
         AccessTokenResult GenerateAccessToken(
             ApplicationUser user,
             IReadOnlyCollection<string> roles,
+            IReadOnlyCollection<string> permissions,
             long sessionId);
     }
 }

@@ -13,6 +13,7 @@ using SmartERP.Identity.Domain.Entities;
 using SmartERP.Identity.Repositories.Interfaces;
 using SmartERP.Identity.Services.Interfaces;
 using SmartERP.Identity.Services.Features.Authentication.Sessions;
+using SmartERP.Identity.DataAccess.Seeding;
 
 namespace SmartERP.Identity.DataAccess;
 
@@ -128,6 +129,7 @@ public static class DependencyInjection
             .AddDefaultTokenProviders();
 
         services.AddScoped<IIdentityRepository, IdentityRepository>();
+        services.AddScoped< IRolePermissionRepository,RolePermissionRepository>();
         services.AddScoped<
             IAuthenticationSessionRepository,
             AuthenticationSessionRepository>();
@@ -197,6 +199,7 @@ public static class DependencyInjection
             IAuthenticationSessionService,
             AuthenticationSessionService>();
         services.AddSingleton<ITokenService, JwtTokenService>();
+        services.AddHostedService<IdentityAuthorizationSeeder>();
 
         return services;
     }

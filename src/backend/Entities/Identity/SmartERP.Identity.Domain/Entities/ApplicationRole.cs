@@ -13,5 +13,8 @@ namespace SmartERP.Identity.Domain.Entities
 
         public bool IsActive { get; set; } = true;
         public DateTimeOffset CreatedAtUtc { get; set; } = DateTimeOffset.UtcNow;
+        public bool IsSystem { get; set; }
+
+        public ICollection<RolePermission> RolePermissions { get; set; } = new List<RolePermission>();
     }
 }

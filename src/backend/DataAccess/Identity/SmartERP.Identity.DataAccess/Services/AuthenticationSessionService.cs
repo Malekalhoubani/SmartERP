@@ -15,6 +15,7 @@ namespace SmartERP.Identity.DataAccess.Services;
 public sealed class AuthenticationSessionService(
     IAuthenticationSessionRepository sessionRepository,
     IIdentityRepository identityRepository,
+    IRolePermissionRepository rolePermissionRepository,
     ITokenService tokenService,
     IOptions<RefreshTokenOptions> options)
     : IAuthenticationSessionService
@@ -132,9 +133,15 @@ public sealed class AuthenticationSessionService(
             session.User,
             cancellationToken);
 
+        var permissions =
+            await rolePermissionRepository.GetUserPermissionsAsync(
+                session.UserId,
+                cancellationToken);
+
         var accessToken = tokenService.GenerateAccessToken(
             session.User,
             roles,
+            permissions,
             session.Id);
 
         await sessionRepository.SaveChangesAsync(cancellationToken);

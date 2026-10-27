@@ -26,6 +26,10 @@ public sealed class ApplicationRoleConfiguration: IEntityTypeConfiguration<Appli
         builder.Property(role => role.IsActive)
             .HasDefaultValue(true);
 
+        builder.Property(role => role.IsSystem)
+    .HasDefaultValue(false);
+
+
         builder.Property(role => role.CreatedAtUtc)
             .HasDefaultValueSql("SYSUTCDATETIME()");
 

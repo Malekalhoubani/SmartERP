@@ -151,6 +151,11 @@ namespace SmartERP.Identity.DataAccess.Migrations
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
 
+                    b.Property<bool>("IsSystem")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(false);
+
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -258,6 +263,53 @@ namespace SmartERP.Identity.DataAccess.Migrations
                     b.ToTable("Users", "identity");
                 });
 
+            modelBuilder.Entity("SmartERP.Identity.Domain.Entities.Permission", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAtUtc")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("datetimeoffset")
+                        .HasDefaultValueSql("SYSUTCDATETIME()");
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(300)
+                        .HasColumnType("nvarchar(300)");
+
+                    b.Property<string>("DisplayName")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.Property<bool>("IsActive")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
+                    b.Property<string>("Module")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(150)
+                        .HasColumnType("nvarchar(150)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Module");
+
+                    b.HasIndex("Name")
+                        .IsUnique();
+
+                    b.ToTable("Permissions", "identity");
+                });
+
             modelBuilder.Entity("SmartERP.Identity.Domain.Entities.RefreshToken", b =>
                 {
                     b.Property<long>("Id")
@@ -314,6 +366,21 @@ namespace SmartERP.Identity.DataAccess.Migrations
                     b.HasIndex("UserSessionId");
 
                     b.ToTable("RefreshTokens", "identity");
+                });
+
+            modelBuilder.Entity("SmartERP.Identity.Domain.Entities.RolePermission", b =>
+                {
+                    b.Property<int>("RoleId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("PermissionId")
+                        .HasColumnType("int");
+
+                    b.HasKey("RoleId", "PermissionId");
+
+                    b.HasIndex("PermissionId");
+
+                    b.ToTable("RolePermissions", "identity");
                 });
 
             modelBuilder.Entity("SmartERP.Identity.Domain.Entities.UserSession", b =>
@@ -426,6 +493,25 @@ namespace SmartERP.Identity.DataAccess.Migrations
                     b.Navigation("UserSession");
                 });
 
+            modelBuilder.Entity("SmartERP.Identity.Domain.Entities.RolePermission", b =>
+                {
+                    b.HasOne("SmartERP.Identity.Domain.Entities.Permission", "Permission")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("PermissionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("SmartERP.Identity.Domain.Entities.ApplicationRole", "Role")
+                        .WithMany("RolePermissions")
+                        .HasForeignKey("RoleId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Permission");
+
+                    b.Navigation("Role");
+                });
+
             modelBuilder.Entity("SmartERP.Identity.Domain.Entities.UserSession", b =>
                 {
                     b.HasOne("SmartERP.Identity.Domain.Entities.ApplicationUser", "User")
@@ -437,9 +523,19 @@ namespace SmartERP.Identity.DataAccess.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("SmartERP.Identity.Domain.Entities.ApplicationRole", b =>
+                {
+                    b.Navigation("RolePermissions");
+                });
+
             modelBuilder.Entity("SmartERP.Identity.Domain.Entities.ApplicationUser", b =>
                 {
                     b.Navigation("Sessions");
+                });
+
+            modelBuilder.Entity("SmartERP.Identity.Domain.Entities.Permission", b =>
+                {
+                    b.Navigation("RolePermissions");
                 });
 
             modelBuilder.Entity("SmartERP.Identity.Domain.Entities.UserSession", b =>
