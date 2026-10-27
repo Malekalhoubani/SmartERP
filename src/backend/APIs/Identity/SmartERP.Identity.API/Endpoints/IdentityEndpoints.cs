@@ -1,4 +1,4 @@
-using FluentValidation;
+using SmartERP.Identity.API.Filters;
 using SmartERP.Identity.Services.Features.Authentication.Register;
 using SmartERP.Identity.Services.Features.Authentication.Register.DTO;
 using SmartERP.ServiceDefaults.FoundationOptions;
@@ -17,6 +17,7 @@ public static class IdentityEndpoints
 
         authenticationGroup
             .MapPost("/register", RegisterAsync)
+            .AddEndpointFilter<ValidationFilter<RegisterRequestDto>>()
             .RequireRateLimiting(
                 ServiceDefaultsExtensions.AuthenticationRateLimitPolicy);
 
@@ -27,6 +28,7 @@ public static class IdentityEndpoints
 
         authenticationGroup
             .MapPost("/login", LoginAsync)
+            .AddEndpointFilter<ValidationFilter<LoginRequestDto>>()
             .RequireRateLimiting(
                 ServiceDefaultsExtensions.AuthenticationRateLimitPolicy);
 
@@ -35,29 +37,10 @@ public static class IdentityEndpoints
 
     private static async Task<IResult> RegisterAsync(
         RegisterRequestDto requestDto,
-        IValidator<RegisterRequestDto> validator,
         IRegisterService registerService,
         HttpRequest httpRequest,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(
-            requestDto,
-            cancellationToken);
-
-        if (!validationResult.IsValid)
-        {
-            var validationErrors = validationResult.Errors
-                .GroupBy(error => error.PropertyName)
-                .ToDictionary(
-                    group => group.Key,
-                    group => group
-                        .Select(error => error.ErrorMessage)
-                        .Distinct()
-                        .ToArray());
-
-            return Results.ValidationProblem(validationErrors);
-        }
-
         var confirmationBaseUrl =
             $"{httpRequest.Scheme}://{httpRequest.Host}/api/auth/confirm-email";
 
@@ -89,28 +72,9 @@ public static class IdentityEndpoints
 
     private static async Task<IResult> LoginAsync(
         LoginRequestDto requestDto,
-        IValidator<LoginRequestDto> validator,
         ILoginService loginService,
         CancellationToken cancellationToken)
     {
-        var validationResult = await validator.ValidateAsync(
-            requestDto,
-            cancellationToken);
-
-        if (!validationResult.IsValid)
-        {
-            var validationErrors = validationResult.Errors
-                .GroupBy(error => error.PropertyName)
-                .ToDictionary(
-                    group => group.Key,
-                    group => group
-                        .Select(error => error.ErrorMessage)
-                        .Distinct()
-                        .ToArray());
-
-            return Results.ValidationProblem(validationErrors);
-        }
-
         var response = await loginService.LoginAsync(
             requestDto,
             cancellationToken);
