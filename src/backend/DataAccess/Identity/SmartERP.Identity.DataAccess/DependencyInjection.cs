@@ -152,6 +152,9 @@ public static class DependencyInjection
             .Validate(
                 options => !string.IsNullOrWhiteSpace(options.Password),
                 "Email:Password is required.")
+            .Validate(
+                options => options.TimeoutSeconds is > 0 and <= 60,
+                "Email:TimeoutSeconds must be between 1 and 60.")
             .ValidateOnStart();
 
         services
