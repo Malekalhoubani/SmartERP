@@ -1,4 +1,4 @@
-﻿namespace SmartERP.Identity.DataAccess.Options;
+namespace SmartERP.Identity.DataAccess.Options;
 
 public sealed class EmailOptions
 {

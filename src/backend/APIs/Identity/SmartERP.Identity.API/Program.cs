@@ -15,6 +15,9 @@ var app = builder.Build();
 
 app.UseSmartErpFoundation();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapSmartErpFoundation(
     "SmartERP Identity API");
 
