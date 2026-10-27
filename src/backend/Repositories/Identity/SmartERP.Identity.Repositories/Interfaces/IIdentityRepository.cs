@@ -15,6 +15,6 @@ namespace SmartERP.Identity.Repositories.Interfaces
         Task<IdentityOperationResult> CreateUserAsync(ApplicationUser user, string password, CancellationToken cancellationToken = default);
         Task<string> GenerateEmailConfirmationTokenAsync(ApplicationUser user, CancellationToken cancellationToken = default);
         Task<IdentityOperationResult> ConfirmEmailAsync(ApplicationUser user, string token, CancellationToken cancellationToken = default);
-
+        Task<PasswordCheckResult> CheckPasswordAsync(ApplicationUser user, string password,CancellationToken cancellationToken = default);
     }
 }

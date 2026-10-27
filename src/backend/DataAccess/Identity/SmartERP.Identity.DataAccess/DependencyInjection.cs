@@ -52,6 +52,12 @@ public static class DependencyInjection
                 options.Password.RequireLowercase = true;
                 options.Password.RequireDigit = true;
                 options.Password.RequireNonAlphanumeric = true;
+                options.Lockout.AllowedForNewUsers = true;
+
+                options.Lockout.MaxFailedAccessAttempts = 5;
+
+                options.Lockout.DefaultLockoutTimeSpan =
+                    TimeSpan.FromMinutes(15);
 
                 options.SignIn.RequireConfirmedEmail = true;
             })
@@ -81,6 +87,9 @@ public static class DependencyInjection
                 options => !string.IsNullOrWhiteSpace(options.Password),
                 "Email:Password is required.")
             .ValidateOnStart();
+
+
+
 
         services.Configure<DataProtectionTokenProviderOptions>(options =>
         {
