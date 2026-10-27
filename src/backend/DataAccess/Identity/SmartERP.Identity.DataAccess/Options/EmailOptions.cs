@@ -17,4 +17,8 @@ public sealed class EmailOptions
     public string Password { get; set; } = string.Empty;
 
     public bool UseStartTls { get; set; } = true;
+
+    public bool UseAuthentication { get; set; } = true;
+
+    public int TimeoutSeconds { get; set; } = 10;
 }
