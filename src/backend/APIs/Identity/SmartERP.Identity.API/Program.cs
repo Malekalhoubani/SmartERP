@@ -3,6 +3,7 @@ using SmartERP.ServiceDefaults.FoundationOptions;
 using SmartERP.Identity.DataAccess;
 using SmartERP.Identity.Services;
 using SmartERP.Identity.API.Endpoints;
+using SmartERP.Identity.API.Authorization;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.AddSmartErpFoundation();
 builder.Services.AddIdentityDataAccess(builder.Configuration);
 builder.Services.AddIdentityServices();
+builder.Services.AddPermissionAuthorization();
 
 var app = builder.Build();
 
@@ -22,6 +24,7 @@ app.MapSmartErpFoundation(
     "SmartERP Identity API");
 
 app.MapIdentityEndpoints();
+app.MapAuthorizationEndpoints();
 
 app.Run();
 

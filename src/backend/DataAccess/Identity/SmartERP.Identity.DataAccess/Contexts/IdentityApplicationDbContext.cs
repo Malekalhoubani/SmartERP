@@ -11,7 +11,13 @@ public sealed class IdentityApplicationDbContext : IdentityDbContext<Application
     {
     }
     public DbSet<UserSession> UserSessions => Set<UserSession>();
+
     public DbSet<RefreshToken> RefreshTokens => Set<RefreshToken>();
+
+    public DbSet<Permission> Permissions => Set<Permission>();
+
+    public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

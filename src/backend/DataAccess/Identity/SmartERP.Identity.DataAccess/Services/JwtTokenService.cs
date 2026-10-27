@@ -23,6 +23,7 @@ public sealed class JwtTokenService : ITokenService
     public AccessTokenResult GenerateAccessToken(
         ApplicationUser user,
         IReadOnlyCollection<string> roles,
+        IReadOnlyCollection<string> permissions,
         long sessionId)
     {
         var issuedAtUtc = DateTimeOffset.UtcNow;
@@ -67,6 +68,11 @@ public sealed class JwtTokenService : ITokenService
         foreach (var role in roles)
         {
             claims.Add(new Claim("role", role));
+        }
+
+        foreach (var permission in permissions)
+        {
+            claims.Add(new Claim("permission", permission));
         }
 
         var signingKeyBytes =

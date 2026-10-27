@@ -15,15 +15,18 @@ namespace SmartERP.Identity.Services.Features.Authentication.Login
         private readonly IIdentityRepository _identityRepository;
         private readonly ITokenService _tokenService;
         private readonly IAuthenticationSessionService _sessionService;
+        private readonly IRolePermissionRepository _rolePermissionRepository;
 
         public LoginService(
             IIdentityRepository identityRepository,
             ITokenService tokenService,
-            IAuthenticationSessionService sessionService)
+            IAuthenticationSessionService sessionService,
+            IRolePermissionRepository rolePermissionRepository)
         {
             _identityRepository = identityRepository;
             _tokenService = tokenService;
             _sessionService = sessionService;
+            _rolePermissionRepository = rolePermissionRepository;
         }
 
         public async Task<LoginResult> LoginAsync(
@@ -64,6 +67,11 @@ namespace SmartERP.Identity.Services.Features.Authentication.Login
                 user,
                 cancellationToken);
 
+            var permissions =
+                await _rolePermissionRepository.GetUserPermissionsAsync(
+                    user.Id,
+                    cancellationToken);
+
             var session = await _sessionService.CreateSessionAsync(
                 user,
                 ipAddress,
@@ -73,6 +81,7 @@ namespace SmartERP.Identity.Services.Features.Authentication.Login
             var accessToken = _tokenService.GenerateAccessToken(
                 user,
                 roles,
+                permissions,
                 session.SessionId);
 
             return new LoginResult(
