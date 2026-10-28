@@ -106,6 +106,32 @@ public sealed class RegisterService : IRegisterService
         }
     }
 
+    public async Task<ResendConfirmationEmailResponseDto>
+        ResendConfirmationEmailAsync(
+            ResendConfirmationEmailRequestDto requestDto,
+            string confirmationBaseUrl,
+            CancellationToken cancellationToken = default)
+    {
+        var email = requestDto.Email.Trim();
+        var user = await _identityRepository.FindByEmailAsync(
+            email,
+            cancellationToken);
+
+        if (user is not null &&
+            user.IsActive &&
+            !user.EmailConfirmed)
+        {
+            await SendConfirmationEmailAsync(
+                user,
+                confirmationBaseUrl,
+                cancellationToken);
+        }
+
+        return new ResendConfirmationEmailResponseDto(
+            "If the account exists and is not confirmed, " +
+            "a verification email has been sent.");
+    }
+
     private async Task SendConfirmationEmailAsync(
         ApplicationUser user,
         string confirmationBaseUrl,

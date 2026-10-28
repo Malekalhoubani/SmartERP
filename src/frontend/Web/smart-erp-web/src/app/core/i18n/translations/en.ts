@@ -21,12 +21,36 @@ export const en: TranslationResource = {
     alreadyHaveAccount: 'Already have an account?',
     signIn: 'Sign in',
     secureIdentity: 'Enterprise-grade identity',
-    secureIdentityDescription: 'Secure authentication, roles and permissions built for growing teams.',
+    secureIdentityDescription:
+      'Secure authentication, roles and permissions built for growing teams.',
     scalablePlatform: 'Built to scale',
     scalablePlatformDescription: 'A unified ERP foundation for inventory, sales and operations.',
     trustedData: 'Your data, protected',
     trustedDataDescription: 'Independent services and strong security controls from day one.',
     copyright: '© {{year}} SmartERP. All rights reserved.',
+    checkEmailEyebrow: 'EMAIL VERIFICATION',
+    checkEmailTitle: 'Check your email',
+    checkEmailSubtitle: 'We sent an account activation link to your email address.',
+    checkEmailSentTo: 'Verification email sent to',
+    checkEmailInstructions:
+      'Open the message and click the confirmation button to activate your SmartERP account.',
+    checkEmailSpam: 'Cannot find the message? Check your spam or junk folder.',
+    resendEmail: 'Resend verification email',
+    resendingEmail: 'Sending verification email...',
+    backToLogin: 'Back to sign in',
+    wrongEmail: 'Entered the wrong email?',
+    registerAgain: 'Register with another email',
+    confirmingEmailEyebrow: 'ACCOUNT ACTIVATION',
+    confirmingEmailTitle: 'Confirming your email',
+    confirmingEmailDescription:
+      'Please wait while we activate your SmartERP account.',
+    emailConfirmedTitle: 'Email confirmed',
+    emailConfirmedDescription:
+      'Your SmartERP account is active and ready to use.',
+    emailConfirmationFailedTitle: 'Confirmation link is invalid',
+    emailConfirmationFailedDescription:
+      'The link may be invalid or expired. Request a new verification email and try again.',
+    backToRegister: 'Back to registration',
   },
   menu: {
     dashboard: 'Dashboard',
@@ -42,7 +66,8 @@ export const en: TranslationResource = {
     emailRequired: 'Email is required.',
     emailInvalid: 'Enter a valid email address.',
     passwordRequired: 'Password is required.',
-    passwordPolicy: 'Use at least 12 characters with uppercase, lowercase, number and special character.',
+    passwordPolicy:
+      'Use at least 12 characters with uppercase, lowercase, number and special character.',
     confirmPasswordRequired: 'Password confirmation is required.',
     passwordsMismatch: 'Passwords do not match.',
     registerSuccess: 'Account created for {{email}}. Check your email to activate your account.',
@@ -55,5 +80,9 @@ export const en: TranslationResource = {
     tooManyRequests: 'Too many attempts. Please try again later.',
     serverError: 'A server error occurred. Please try again later.',
     requestFailed: 'The request could not be completed. Please try again.',
+    confirmationEmailResent: 'A new verification email has been sent to {{email}}.',
+    emailRequiredForResend: 'The email address is required to resend the verification message.',
+    emailConfirmedSuccess: 'Your email has been confirmed successfully.',
+    invalidConfirmationLink: 'The email confirmation link is invalid or incomplete.',
   },
 };

@@ -1,0 +1,49 @@
+<main class="confirmation-page">
+  <header class="confirmation-topbar">
+    <a class="brand" routerLink="/auth/register" aria-label="SmartERP">
+      <span class="brand__mark" aria-hidden="true">S</span>
+      <strong>{{ translation.t('labels', 'appName') }}</strong>
+    </a>
+
+    <button
+      class="language-button"
+      type="button"
+      (click)="translation.toggleLanguage()">
+      <span aria-hidden="true">◎</span>
+      {{ translation.t('labels', 'language') }}
+    </button>
+  </header>
+
+  <section class="confirmation-card" aria-live="polite">
+    @if (status() === 'loading') {
+      <div class="status-icon status-icon--loading" aria-hidden="true">
+        <span class="spinner"></span>
+      </div>
+      <span class="eyebrow">
+        {{ translation.t('labels', 'confirmingEmailEyebrow') }}
+      </span>
+      <h1>{{ translation.t('labels', 'confirmingEmailTitle') }}</h1>
+      <p>{{ translation.t('labels', 'confirmingEmailDescription') }}</p>
+    } @else if (status() === 'success') {
+      <div class="status-icon status-icon--success" aria-hidden="true">✓</div>
+      <span class="eyebrow">
+        {{ translation.t('labels', 'confirmingEmailEyebrow') }}
+      </span>
+      <h1>{{ translation.t('labels', 'emailConfirmedTitle') }}</h1>
+      <p>{{ translation.t('labels', 'emailConfirmedDescription') }}</p>
+      <a class="primary-action" routerLink="/auth/register">
+        {{ translation.t('labels', 'backToRegister') }}
+      </a>
+    } @else {
+      <div class="status-icon status-icon--error" aria-hidden="true">!</div>
+      <span class="eyebrow">
+        {{ translation.t('labels', 'confirmingEmailEyebrow') }}
+      </span>
+      <h1>{{ translation.t('labels', 'emailConfirmationFailedTitle') }}</h1>
+      <p>{{ translation.t('labels', 'emailConfirmationFailedDescription') }}</p>
+      <a class="primary-action" routerLink="/auth/register">
+        {{ translation.t('labels', 'backToRegister') }}
+      </a>
+    }
+  </section>
+</main>
