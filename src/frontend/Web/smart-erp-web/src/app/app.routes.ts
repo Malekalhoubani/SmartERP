@@ -9,6 +9,20 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'auth/check-email',
+    loadComponent: () =>
+      import('./features/auth/pages/check-email/check-email.component').then(
+        (component) => component.CheckEmailComponent,
+      ),
+  },
+  {
+    path: 'auth/confirm-email',
+    loadComponent: () =>
+      import('./features/auth/pages/confirm-email/confirm-email.component').then(
+        (component) => component.ConfirmEmailComponent,
+      ),
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'auth/register',

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 import {
@@ -8,6 +8,11 @@ import {
 } from '../../features/auth/dto/register/register.dto';
 
 import { environment } from '../../../environments/environment';
+import {
+  ConfirmEmailResponseDto,
+  ResendConfirmationEmailRequestDto,
+  ResendConfirmationEmailResponseDto,
+} from '../../features/auth/dto/email-confirmation/email-confirmation.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -18,6 +23,29 @@ export class AuthService {
   register(requestDto: RegisterRequestDto): Observable<RegisterResponseDto> {
     return this.httpClient.post<RegisterResponseDto>(
       `${environment.identityApiUrl}/register`,
+      requestDto,
+    );
+  }
+
+  confirmEmail(
+    userId: number,
+    token: string,
+  ): Observable<ConfirmEmailResponseDto> {
+    const params = new HttpParams()
+      .set('userId', userId)
+      .set('token', token);
+
+    return this.httpClient.get<ConfirmEmailResponseDto>(
+      `${environment.identityApiUrl}/confirm-email`,
+      { params },
+    );
+  }
+
+  resendConfirmationEmail(
+    requestDto: ResendConfirmationEmailRequestDto,
+  ): Observable<ResendConfirmationEmailResponseDto> {
+    return this.httpClient.post<ResendConfirmationEmailResponseDto>(
+      `${environment.identityApiUrl}/resend-confirmation-email`,
       requestDto,
     );
   }

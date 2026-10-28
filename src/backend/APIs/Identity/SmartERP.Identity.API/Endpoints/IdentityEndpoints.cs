@@ -39,6 +39,16 @@ public static class IdentityEndpoints
                 ServiceDefaultsExtensions.AuthenticationRateLimitPolicy);
 
         authenticationGroup
+            .MapPost(
+                "/resend-confirmation-email",
+                ResendConfirmationEmailAsync)
+            .AddEndpointFilter<
+                ValidationFilter<ResendConfirmationEmailRequestDto>>()
+            .RequireRateLimiting(
+                ServiceDefaultsExtensions.AuthenticationRateLimitPolicy)
+            .AllowAnonymous();
+
+        authenticationGroup
             .MapPost("/login", LoginAsync)
             .AddEndpointFilter<ValidationFilter<LoginRequestDto>>()
             .RequireRateLimiting(
@@ -98,11 +108,19 @@ public static class IdentityEndpoints
     private static async Task<IResult> RegisterAsync(
         RegisterRequestDto requestDto,
         IRegisterService registerService,
+        FrontendOriginResolver frontendOriginResolver,
         HttpRequest httpRequest,
         CancellationToken cancellationToken)
     {
+        var frontendOrigin = frontendOriginResolver.Resolve(httpRequest);
+
+        if (frontendOrigin is null)
+        {
+            return InvalidFrontendOrigin();
+        }
+
         var confirmationBaseUrl =
-            $"{httpRequest.Scheme}://{httpRequest.Host}/api/auth/confirm-email";
+            $"{frontendOrigin}/auth/confirm-email";
 
         var response = await registerService.RegisterAsync(
             requestDto,
@@ -112,6 +130,29 @@ public static class IdentityEndpoints
         return Results.Json(
             response,
             statusCode: StatusCodes.Status201Created);
+    }
+
+    private static async Task<IResult> ResendConfirmationEmailAsync(
+        ResendConfirmationEmailRequestDto requestDto,
+        IRegisterService registerService,
+        FrontendOriginResolver frontendOriginResolver,
+        HttpRequest httpRequest,
+        CancellationToken cancellationToken)
+    {
+        var frontendOrigin = frontendOriginResolver.Resolve(httpRequest);
+
+        if (frontendOrigin is null)
+        {
+            return InvalidFrontendOrigin();
+        }
+
+        var response = await registerService
+            .ResendConfirmationEmailAsync(
+                requestDto,
+                $"{frontendOrigin}/auth/confirm-email",
+                cancellationToken);
+
+        return Results.Ok(response);
     }
 
     private static async Task<IResult> ConfirmEmailAsync(
@@ -439,6 +480,16 @@ public static class IdentityEndpoints
     private static string? GetIpAddress(HttpContext httpContext)
     {
         return httpContext.Connection.RemoteIpAddress?.ToString();
+    }
+
+    private static IResult InvalidFrontendOrigin()
+    {
+        return Results.BadRequest(new ProblemDetails
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Invalid frontend origin",
+            Detail = "The request origin is missing or is not allowed."
+        });
     }
 
     private static void WriteRefreshTokenCookie(

@@ -11,7 +11,7 @@ import { TranslationService } from '../../../../core/i18n/translation.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { RegisterRequestDto } from '../../dto/register/register.dto';
-
+import { Router } from '@angular/router';
 const passwordsMatchValidator = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('password')?.value;
   const confirmPassword = control.get('confirmPassword')?.value;
@@ -33,6 +33,7 @@ export class RegisterComponent {
   readonly translation = inject(TranslationService);
   readonly isSubmitting = signal(false);
   readonly currentYear = new Date().getFullYear();
+  private readonly router = inject(Router);
 
   readonly registerForm = this.formBuilder.nonNullable.group(
     {
@@ -71,7 +72,15 @@ export class RegisterComponent {
           this.toast.success(
             this.translation.t('alerts', 'registerSuccess', { email: responseDto.email }),
           );
+
           this.registerForm.reset();
+
+          void this.router.navigate(['/auth/check-email'], {
+            queryParams: {
+              email: responseDto.email,
+            },
+            replaceUrl: true,
+          });
         },
         error: () => {
           // The global API interceptor displays a localized error toast.

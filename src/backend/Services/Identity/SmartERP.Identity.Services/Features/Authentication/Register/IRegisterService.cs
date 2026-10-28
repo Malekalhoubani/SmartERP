@@ -13,4 +13,9 @@ public interface IRegisterService
         int userId,
         string token,
         CancellationToken cancellationToken = default);
+
+    Task<ResendConfirmationEmailResponseDto> ResendConfirmationEmailAsync(
+        ResendConfirmationEmailRequestDto requestDto,
+        string confirmationBaseUrl,
+        CancellationToken cancellationToken = default);
 }

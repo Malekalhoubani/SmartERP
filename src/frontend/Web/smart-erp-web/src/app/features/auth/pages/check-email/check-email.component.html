@@ -1,0 +1,77 @@
+<main class="verification-page">
+    <header class="verification-topbar">
+        <a class="brand" routerLink="/auth/register" aria-label="SmartERP">
+            <span class="brand__mark" aria-hidden="true">S</span>
+            <strong>
+                {{ translation.t('labels', 'appName') }}
+            </strong>
+        </a>
+
+        <button class="language-button" type="button" (click)="translation.toggleLanguage()">
+            <span aria-hidden="true">◎</span>
+            {{ translation.t('labels', 'language') }}
+        </button>
+    </header>
+
+    <section class="verification-card">
+        <div class="verification-icon" aria-hidden="true">
+            <span class="verification-icon__envelope">✉</span>
+            <span class="verification-icon__check">✓</span>
+        </div>
+
+        <span class="eyebrow">
+            {{ translation.t('labels', 'checkEmailEyebrow') }}
+        </span>
+
+        <h1>
+            {{ translation.t('labels', 'checkEmailTitle') }}
+        </h1>
+
+        <p class="subtitle">
+            {{ translation.t('labels', 'checkEmailSubtitle') }}
+        </p>
+
+        @if (email()) {
+        <div class="email-box">
+            <span>
+                {{ translation.t('labels', 'checkEmailSentTo') }}
+            </span>
+
+            <strong dir="ltr">
+                {{ email() }}
+            </strong>
+        </div>
+        }
+
+        <div class="instructions">
+            <span class="instructions__number">1</span>
+
+            <p>
+                {{ translation.t('labels', 'checkEmailInstructions') }}
+            </p>
+        </div>
+
+        <p class="spam-message">
+            {{ translation.t('labels', 'checkEmailSpam') }}
+        </p>
+
+        <div class="actions">
+            <button
+                class="primary-action"
+                type="button"
+                [disabled]="isResending() || !email()"
+                (click)="resendConfirmationEmail()">
+                @if (isResending()) {
+                <span class="spinner" aria-hidden="true"></span>
+                {{ translation.t('labels', 'resendingEmail') }}
+                } @else {
+                {{ translation.t('labels', 'resendEmail') }}
+                }
+            </button>
+
+            <a class="secondary-action" routerLink="/auth/register">
+                {{ translation.t('labels', 'registerAgain') }}
+            </a>
+        </div>
+    </section>
+</main>
