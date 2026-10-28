@@ -152,7 +152,22 @@ form { display: grid; gap: 1.15rem; }
 .button-arrow { font-size: 1.2rem; }
 :host-context(html[dir='rtl']) .button-arrow { transform: rotate(180deg); }
 .spinner { width: 1rem; height: 1rem; border: 2px solid rgba(255, 255, 255, 0.35); border-top-color: #fff; border-radius: 50%; animation: spin 700ms linear infinite; }
-.login-prompt { margin: 1.5rem 0 0; color: #75869a; text-align: center; font-size: 0.88rem; span { color: #147f75; font-weight: 800; } }
+.login-prompt {
+  margin: 1.5rem 0 0;
+  color: #75869a;
+  text-align: center;
+  font-size: 0.88rem;
+
+  a {
+    color: #147f75;
+    text-decoration: none;
+    font-weight: 800;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}
 
 @keyframes spin { to { transform: rotate(360deg); } }
 

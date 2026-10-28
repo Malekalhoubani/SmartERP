@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using SmartERP.Identity.Services.Interfaces;
 using SmartERP.Identity.Services.Features.Authentication.Login.Models;
 using SmartERP.Identity.Services.Features.Authentication.Sessions;
+using SmartERP.Identity.Services.Features.Authentication.Login.Exceptions;
 namespace SmartERP.Identity.Services.Features.Authentication.Login
 {
      public sealed class LoginService : ILoginService
@@ -42,25 +43,30 @@ namespace SmartERP.Identity.Services.Features.Authentication.Login
 
             if(user == null || !user.IsActive)
             {
-                throw new UnauthorizedAccessException("Invalid email or password.");
+                throw new LoginFailureException(
+                    LoginErrorCodes.InvalidCredentials,
+                    "Invalid email or password.");
             }
 
             var passwordResult = await _identityRepository.CheckPasswordAsync(user, requestDto.Password, cancellationToken);
 
             if (passwordResult.IsLockedOut)
             {
-                throw new UnauthorizedAccessException(
+                throw new LoginFailureException(
+                    LoginErrorCodes.AccountLocked,
                     "The account is temporarily locked.");
             }
             if (passwordResult.IsNotAllowed)
             {
-                throw new UnauthorizedAccessException(
+                throw new LoginFailureException(
+                    LoginErrorCodes.EmailNotConfirmed,
                     "Email confirmation is required.");
             }
 
             if (!passwordResult.Succeeded)
             {
-                throw new UnauthorizedAccessException(
+                throw new LoginFailureException(
+                    LoginErrorCodes.InvalidCredentials,
                     "Invalid email or password.");
             }
             var roles = await _identityRepository.GetRolesAsync(

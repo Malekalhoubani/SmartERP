@@ -13,6 +13,7 @@ import {
   ResendConfirmationEmailRequestDto,
   ResendConfirmationEmailResponseDto,
 } from '../../features/auth/dto/email-confirmation/email-confirmation.dto';
+import { LoginRequestDto, LoginResponseDto } from '../../features/auth/dto/login/login.dto';
 
 @Injectable({
   providedIn: 'root',
@@ -27,13 +28,8 @@ export class AuthService {
     );
   }
 
-  confirmEmail(
-    userId: number,
-    token: string,
-  ): Observable<ConfirmEmailResponseDto> {
-    const params = new HttpParams()
-      .set('userId', userId)
-      .set('token', token);
+  confirmEmail(userId: number, token: string): Observable<ConfirmEmailResponseDto> {
+    const params = new HttpParams().set('userId', userId).set('token', token);
 
     return this.httpClient.get<ConfirmEmailResponseDto>(
       `${environment.identityApiUrl}/confirm-email`,
@@ -47,6 +43,15 @@ export class AuthService {
     return this.httpClient.post<ResendConfirmationEmailResponseDto>(
       `${environment.identityApiUrl}/resend-confirmation-email`,
       requestDto,
+    );
+  }
+  login(requestDto: LoginRequestDto): Observable<LoginResponseDto> {
+    return this.httpClient.post<LoginResponseDto>(
+      `${environment.identityApiUrl}/login`,
+      requestDto,
+      {
+        withCredentials: true,
+      },
     );
   }
 }

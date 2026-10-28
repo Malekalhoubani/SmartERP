@@ -128,7 +128,9 @@
 
       <p class="login-prompt">
         {{ translation.t('labels', 'alreadyHaveAccount') }}
-        <span>{{ translation.t('labels', 'signIn') }}</span>
+        <a routerLink="/auth/login">
+          {{ translation.t('labels', 'signIn') }}
+        </a>
       </p>
     </div>
   </section>

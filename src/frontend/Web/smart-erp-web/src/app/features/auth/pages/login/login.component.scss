@@ -1,0 +1,428 @@
+:host {
+    display: block;
+    min-height: 100vh;
+}
+
+.login-page {
+    display: grid;
+    grid-template-columns: minmax(26rem, 44%) 1fr;
+    min-height: 100vh;
+    background: #f7f9fc;
+}
+
+.login-brand-panel {
+    position: relative;
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    padding: clamp(2rem, 5vw, 4.5rem);
+    overflow: hidden;
+    background:
+        radial-gradient(circle at top right,
+            rgba(45, 212, 191, 0.18),
+            transparent 20rem),
+        radial-gradient(circle at bottom left,
+            rgba(37, 99, 235, 0.2),
+            transparent 24rem),
+        linear-gradient(145deg, #102f4d, #15556b);
+    color: #ffffff;
+
+    &::before,
+    &::after {
+        position: absolute;
+        border-radius: 50%;
+        content: '';
+        pointer-events: none;
+    }
+
+    &::before {
+        top: -9rem;
+        right: -8rem;
+        width: 25rem;
+        height: 25rem;
+        background: rgba(45, 212, 191, 0.07);
+    }
+
+    &::after {
+        bottom: -12rem;
+        left: -12rem;
+        width: 30rem;
+        height: 30rem;
+        background: rgba(37, 99, 235, 0.08);
+    }
+}
+
+.brand {
+    position: relative;
+    z-index: 1;
+    display: inline-flex;
+    align-items: center;
+    align-self: flex-start;
+    gap: 0.75rem;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 1.15rem;
+}
+
+.brand__mark {
+    display: grid;
+    width: 2.3rem;
+    height: 2.3rem;
+    place-items: center;
+    border-radius: 0.65rem;
+    background: linear-gradient(135deg, #2dd4bf, #38bdf8);
+    color: #0d2a3f;
+    box-shadow: 0 0.8rem 2rem rgba(45, 212, 191, 0.2);
+    font-weight: 900;
+}
+
+.brand-content {
+    position: relative;
+    z-index: 1;
+    width: min(100%, 36rem);
+    margin: auto 0;
+
+    >h1 {
+        max-width: 34rem;
+        margin: 1rem 0;
+        font-size: clamp(2.4rem, 5vw, 4rem);
+        line-height: 1.02;
+        letter-spacing: -0.055em;
+    }
+
+    >p {
+        max-width: 31rem;
+        margin: 0;
+        color: #bdd0df;
+        font-size: 1.05rem;
+        line-height: 1.75;
+    }
+}
+
+.brand-eyebrow {
+    color: #5eead4;
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+.brand-features {
+    display: grid;
+    gap: 1.1rem;
+    margin-top: 2.5rem;
+}
+
+.brand-feature {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: 0.9rem;
+
+    strong {
+        display: block;
+        margin-bottom: 0.25rem;
+        color: #ffffff;
+    }
+
+    p {
+        margin: 0;
+        color: #aac1d3;
+        font-size: 0.86rem;
+        line-height: 1.55;
+    }
+}
+
+.brand-feature__icon {
+    display: grid;
+    width: 2.2rem;
+    height: 2.2rem;
+    place-items: center;
+    border: 1px solid rgba(94, 234, 212, 0.3);
+    border-radius: 0.7rem;
+    background: rgba(45, 212, 191, 0.09);
+    color: #5eead4;
+    font-weight: 800;
+}
+
+.copyright {
+    position: relative;
+    z-index: 1;
+    color: #9fb7ca;
+    font-size: 0.8rem;
+}
+
+.login-form-panel {
+    position: relative;
+    display: grid;
+    min-height: 100vh;
+    place-items: center;
+    padding: clamp(5rem, 10vw, 8rem) clamp(1.25rem, 8vw, 9rem);
+}
+
+.language-button {
+    position: absolute;
+    top: 2rem;
+    right: clamp(1.25rem, 5vw, 5rem);
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.6rem 0.85rem;
+    border: 1px solid #d5e0eb;
+    border-radius: 0.75rem;
+    background: #ffffff;
+    color: #29435f;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.82rem;
+    font-weight: 700;
+    transition:
+        border-color 150ms ease,
+        box-shadow 150ms ease,
+        color 150ms ease;
+
+    &:hover {
+        border-color: #15968a;
+        color: #117c72;
+        box-shadow: 0 0.5rem 1.5rem rgba(15, 42, 67, 0.08);
+    }
+}
+
+.login-form-container {
+    width: min(100%, 35rem);
+}
+
+.login-header {
+    margin-bottom: 2.25rem;
+
+    h2 {
+        margin: 0.6rem 0;
+        color: #102a43;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        line-height: 1.1;
+        letter-spacing: -0.045em;
+    }
+
+    p {
+        margin: 0;
+        color: #71839a;
+        line-height: 1.65;
+    }
+}
+
+.eyebrow {
+    color: #15968a;
+    font-size: 0.72rem;
+    font-weight: 900;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+}
+
+form {
+    display: grid;
+    gap: 1.35rem;
+}
+
+.form-field {
+    display: grid;
+    gap: 0.55rem;
+
+    label {
+        color: #18324d;
+        font-size: 0.86rem;
+        font-weight: 800;
+    }
+
+    input {
+        width: 100%;
+        min-height: 3.25rem;
+        box-sizing: border-box;
+        padding: 0.85rem 1rem;
+        border: 1px solid #cad8e6;
+        border-radius: 0.72rem;
+        outline: none;
+        background: #ffffff;
+        color: #102a43;
+        font: inherit;
+        transition:
+            border-color 150ms ease,
+            box-shadow 150ms ease,
+            background 150ms ease;
+
+        &::placeholder {
+            color: #9aabbd;
+        }
+
+        &:focus {
+            border-color: #15968a;
+            background: #ffffff;
+            box-shadow: 0 0 0 0.22rem rgba(21, 150, 138, 0.12);
+        }
+
+        &.ng-invalid.ng-touched {
+            border-color: #dc2626;
+        }
+    }
+}
+
+.field-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+
+    a {
+        color: #117c72;
+        text-decoration: none;
+        font-size: 0.8rem;
+        font-weight: 800;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+.password-input {
+    position: relative;
+
+    input {
+        padding-inline-end: 3.4rem;
+    }
+}
+
+.password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0.6rem;
+    display: grid;
+    width: 2.3rem;
+    height: 2.3rem;
+    padding: 0;
+    place-items: center;
+    border: 0;
+    border-radius: 0.55rem;
+    transform: translateY(-50%);
+    background: transparent;
+    color: #60758c;
+    cursor: pointer;
+    font-size: 1rem;
+
+    &:hover {
+        background: #edf5f7;
+        color: #117c72;
+    }
+}
+
+.field-error {
+    color: #dc2626;
+    font-size: 0.78rem;
+    line-height: 1.45;
+}
+
+.submit-button {
+    display: inline-flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.65rem;
+    margin-top: 0.35rem;
+    padding: 0.8rem 1.25rem;
+    border: 0;
+    border-radius: 0.75rem;
+    background: linear-gradient(135deg, #15968a, #117385);
+    color: #ffffff;
+    cursor: pointer;
+    box-shadow: 0 1rem 2rem rgba(17, 115, 133, 0.18);
+    font: inherit;
+    font-weight: 900;
+    transition:
+        transform 150ms ease,
+        box-shadow 150ms ease,
+        opacity 150ms ease;
+
+    &:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 1.2rem 2.4rem rgba(17, 115, 133, 0.23);
+    }
+
+    &:disabled {
+        cursor: not-allowed;
+        opacity: 0.65;
+    }
+}
+
+.spinner {
+    width: 1rem;
+    height: 1rem;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    border-top-color: #ffffff;
+    border-radius: 50%;
+    animation: spin 700ms linear infinite;
+}
+
+.register-link {
+    margin: 1.5rem 0 0;
+    color: #71839a;
+    text-align: center;
+    font-size: 0.88rem;
+
+    a {
+        color: #117c72;
+        text-decoration: none;
+        font-weight: 900;
+
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+:host-context([dir='rtl']) {
+    .language-button {
+        right: auto;
+        left: clamp(1.25rem, 5vw, 5rem);
+    }
+
+    .password-toggle {
+        right: auto;
+        left: 0.6rem;
+    }
+
+    .password-input input {
+        padding-inline-end: 1rem;
+        padding-inline-start: 3.4rem;
+    }
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+@media (max-width: 62rem) {
+    .login-page {
+        grid-template-columns: 1fr;
+    }
+
+    .login-brand-panel {
+        display: none;
+    }
+}
+
+@media (max-width: 36rem) {
+    .login-form-panel {
+        padding: 6rem 1rem 2rem;
+    }
+
+    .language-button {
+        top: 1rem;
+        right: 1rem;
+    }
+
+    :host-context([dir='rtl']) .language-button {
+        right: auto;
+        left: 1rem;
+    }
+}

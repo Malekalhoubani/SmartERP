@@ -1,0 +1,183 @@
+<main class="login-page">
+    <aside class="login-brand-panel">
+        <a class="brand" routerLink="/auth/login">
+            <span class="brand__mark" aria-hidden="true">S</span>
+            <strong>
+                {{ translation.t('labels', 'appName') }}
+            </strong>
+        </a>
+
+        <div class="brand-content">
+            <span class="brand-eyebrow">
+                {{ translation.t('labels', 'registerEyebrow') }}
+            </span>
+
+            <h1>
+                {{ translation.t('labels', 'loginTitle') }}
+            </h1>
+
+            <p>
+                {{ translation.t('labels', 'loginSubtitle') }}
+            </p>
+
+            <div class="brand-features">
+                <div class="brand-feature">
+                    <span class="brand-feature__icon" aria-hidden="true">✓</span>
+
+                    <div>
+                        <strong>
+                            {{ translation.t('labels', 'secureIdentity') }}
+                        </strong>
+
+                        <p>
+                            {{ translation.t('labels', 'secureIdentityDescription') }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="brand-feature">
+                    <span class="brand-feature__icon" aria-hidden="true">↗</span>
+
+                    <div>
+                        <strong>
+                            {{ translation.t('labels', 'scalablePlatform') }}
+                        </strong>
+
+                        <p>
+                            {{ translation.t('labels', 'scalablePlatformDescription') }}
+                        </p>
+                    </div>
+                </div>
+
+                <div class="brand-feature">
+                    <span class="brand-feature__icon" aria-hidden="true">◆</span>
+
+                    <div>
+                        <strong>
+                            {{ translation.t('labels', 'trustedData') }}
+                        </strong>
+
+                        <p>
+                            {{ translation.t('labels', 'trustedDataDescription') }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <small class="copyright">
+            {{
+            translation.t('labels', 'copyright', {
+            year: currentYear,
+            })
+            }}
+        </small>
+    </aside>
+
+    <section class="login-form-panel">
+        <button class="language-button" type="button" (click)="translation.toggleLanguage()">
+            <span aria-hidden="true">◎</span>
+            {{ translation.t('labels', 'language') }}
+        </button>
+
+        <div class="login-form-container">
+            <header class="login-header">
+                <span class="eyebrow">
+                    {{ translation.t('labels', 'loginEyebrow') }}
+                </span>
+
+                <h2>
+                    {{ translation.t('labels', 'loginTitle') }}
+                </h2>
+
+                <p>
+                    {{ translation.t('labels', 'loginSubtitle') }}
+                </p>
+            </header>
+
+            <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
+
+                <div class="form-field">
+                    <label for="email">
+                        {{ translation.t('labels', 'email') }}
+                    </label>
+
+                    <input id="email" type="email" formControlName="email" autocomplete="email" [placeholder]="
+              translation.t('labels', 'loginEmailPlaceholder')
+            " />
+
+                    @if (
+                    loginForm.controls.email.touched &&
+                    loginForm.controls.email.hasError('required')
+                    ) {
+                    <small class="field-error">
+                        {{ translation.t('alerts', 'emailRequired') }}
+                    </small>
+                    } @else if (
+                    loginForm.controls.email.touched &&
+                    loginForm.controls.email.hasError('email')
+                    ) {
+                    <small class="field-error">
+                        {{ translation.t('alerts', 'emailInvalid') }}
+                    </small>
+                    }
+                </div>
+
+                <div class="form-field">
+                    <div class="field-heading">
+                        <label for="password">
+                            {{ translation.t('labels', 'password') }}
+                        </label>
+
+                        <a routerLink="/auth/forgot-password">
+                            {{ translation.t('labels', 'forgotPassword') }}
+                        </a>
+                    </div>
+
+                    <div class="password-input">
+                        <input id="password" [type]="showPassword() ? 'text' : 'password'" formControlName="password"
+                            autocomplete="current-password" [placeholder]="
+                translation.t('labels', 'loginPasswordPlaceholder')
+              " />
+
+                        <button class="password-toggle" type="button" [attr.aria-label]="
+                translation.t(
+                  'labels',
+                  showPassword() ? 'hidePassword' : 'showPassword'
+                )
+              " (click)="togglePasswordVisibility()">
+                            {{ showPassword() ? '◉' : '◎' }}
+                        </button>
+                    </div>
+
+                    @if (
+                    loginForm.controls.password.touched &&
+                    loginForm.controls.password.hasError('required')
+                    ) {
+                    <small class="field-error">
+                        {{ translation.t('alerts', 'passwordRequired') }}
+                    </small>
+                    }
+                </div>
+
+                <button class="submit-button" type="submit" [disabled]="isSubmitting()">
+
+                    @if (isSubmitting()) {
+                    <span class="spinner" aria-hidden="true"></span>
+                    {{ translation.t('labels', 'signingIn') }}
+                    } @else {
+                    {{ translation.t('labels', 'signIn') }}
+                    }
+                </button>
+            </form>
+
+            <p class="register-link">
+                {{ translation.t('labels', 'newToSmartErp') }}
+
+                <a routerLink="/auth/register">
+                    {{ translation.t('labels', 'createAccountLink') }}
+                </a>
+            </p>
+        </div>
+    </section>
+</main>

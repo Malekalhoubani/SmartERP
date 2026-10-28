@@ -42,15 +42,24 @@ export const en: TranslationResource = {
     registerAgain: 'Register with another email',
     confirmingEmailEyebrow: 'ACCOUNT ACTIVATION',
     confirmingEmailTitle: 'Confirming your email',
-    confirmingEmailDescription:
-      'Please wait while we activate your SmartERP account.',
+    confirmingEmailDescription: 'Please wait while we activate your SmartERP account.',
     emailConfirmedTitle: 'Email confirmed',
-    emailConfirmedDescription:
-      'Your SmartERP account is active and ready to use.',
+    emailConfirmedDescription: 'Your SmartERP account is active and ready to use.',
     emailConfirmationFailedTitle: 'Confirmation link is invalid',
     emailConfirmationFailedDescription:
       'The link may be invalid or expired. Request a new verification email and try again.',
     backToRegister: 'Back to registration',
+    loginEyebrow: 'SECURE ACCESS',
+    loginTitle: 'Welcome back',
+    loginSubtitle: 'Sign in to continue managing your SmartERP workspace.',
+    loginEmailPlaceholder: 'name@company.com',
+    loginPasswordPlaceholder: 'Enter your password',
+    signingIn: 'Signing in...',
+    forgotPassword: 'Forgot password?',
+    newToSmartErp: 'New to SmartERP?',
+    createAccountLink: 'Create an account',
+    showPassword: 'Show password',
+    hidePassword: 'Hide password',
   },
   menu: {
     dashboard: 'Dashboard',
@@ -84,5 +93,9 @@ export const en: TranslationResource = {
     emailRequiredForResend: 'The email address is required to resend the verification message.',
     emailConfirmedSuccess: 'Your email has been confirmed successfully.',
     invalidConfirmationLink: 'The email confirmation link is invalid or incomplete.',
+    loginSuccess: 'Welcome back, {{name}}.',
+    invalidCredentials: 'The email or password is incorrect.',
+    emailConfirmationRequired: 'Confirm your email address before signing in.',
+    accountLocked: 'Your account is temporarily locked. Please try again later.',
   },
 };

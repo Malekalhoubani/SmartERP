@@ -4,6 +4,8 @@ using SmartERP.Identity.Services.Features.Authentication.Register.DTO;
 using SmartERP.ServiceDefaults.FoundationOptions;
 using SmartERP.Identity.Services.Features.Authentication.Login;
 using SmartERP.Identity.Services.Features.Authentication.Login.DTO;
+using SmartERP.Identity.Services.Features.Authentication.Login.Exceptions;
+using SmartERP.Identity.Services.Features.Authentication.Login.Models;
 using Microsoft.Extensions.Options;
 using Microsoft.AspNetCore.Mvc;
 using SmartERP.Identity.DataAccess.Options;
@@ -178,11 +180,27 @@ public static class IdentityEndpoints
         HttpContext httpContext,
         CancellationToken cancellationToken)
     {
-        var result = await loginService.LoginAsync(
-            requestDto,
-            GetIpAddress(httpContext),
-            httpContext.Request.Headers.UserAgent.ToString(),
-            cancellationToken);
+        LoginResult result;
+
+        try
+        {
+            result = await loginService.LoginAsync(
+                requestDto,
+                GetIpAddress(httpContext),
+                httpContext.Request.Headers.UserAgent.ToString(),
+                cancellationToken);
+        }
+        catch (LoginFailureException exception)
+        {
+            return Results.Problem(
+                statusCode: StatusCodes.Status401Unauthorized,
+                title: "Login failed",
+                detail: exception.Message,
+                extensions: new Dictionary<string, object?>
+                {
+                    ["code"] = exception.Code
+                });
+        }
 
         WriteRefreshTokenCookie(
             httpContext.Response,
