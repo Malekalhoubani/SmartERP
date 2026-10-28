@@ -1,0 +1,135 @@
+<main class="auth-page">
+  <section class="brand-panel" aria-labelledby="brand-title">
+    <div class="brand-panel__glow brand-panel__glow--one"></div>
+    <div class="brand-panel__glow brand-panel__glow--two"></div>
+
+    <div class="brand">
+      <span class="brand__mark" aria-hidden="true">S</span>
+      <span id="brand-title">{{ translation.t('labels', 'appName') }}</span>
+    </div>
+
+    <div class="brand-content">
+      <span class="eyebrow">{{ translation.t('labels', 'registerEyebrow') }}</span>
+      <h1>{{ translation.t('labels', 'registerTitle') }}</h1>
+      <p>{{ translation.t('labels', 'registerSubtitle') }}</p>
+
+      <div class="benefits">
+        <article class="benefit">
+          <span class="benefit__icon" aria-hidden="true">✓</span>
+          <div>
+            <h2>{{ translation.t('labels', 'secureIdentity') }}</h2>
+            <p>{{ translation.t('labels', 'secureIdentityDescription') }}</p>
+          </div>
+        </article>
+
+        <article class="benefit">
+          <span class="benefit__icon" aria-hidden="true">↗</span>
+          <div>
+            <h2>{{ translation.t('labels', 'scalablePlatform') }}</h2>
+            <p>{{ translation.t('labels', 'scalablePlatformDescription') }}</p>
+          </div>
+        </article>
+
+        <article class="benefit">
+          <span class="benefit__icon" aria-hidden="true">◆</span>
+          <div>
+            <h2>{{ translation.t('labels', 'trustedData') }}</h2>
+            <p>{{ translation.t('labels', 'trustedDataDescription') }}</p>
+          </div>
+        </article>
+      </div>
+    </div>
+
+    <small>{{ translation.t('labels', 'copyright', { year: currentYear }) }}</small>
+  </section>
+
+  <section class="form-panel">
+    <header class="form-panel__topbar">
+      <div class="mobile-brand">
+        <span class="brand__mark" aria-hidden="true">S</span>
+        <strong>{{ translation.t('labels', 'appName') }}</strong>
+      </div>
+
+      <button class="language-button" type="button" (click)="translation.toggleLanguage()">
+        <span aria-hidden="true">◎</span>
+        {{ translation.t('labels', 'language') }}
+      </button>
+    </header>
+
+    <div class="form-wrapper">
+      <header class="form-heading">
+        <span class="eyebrow">{{ translation.t('menu', 'register') }}</span>
+        <h2>{{ translation.t('labels', 'registerTitle') }}</h2>
+        <p>{{ translation.t('labels', 'registerSubtitle') }}</p>
+      </header>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="form-field">
+          <label for="fullName">{{ translation.t('labels', 'fullName') }}</label>
+          <input id="fullName" type="text" formControlName="fullName" autocomplete="name"
+            [placeholder]="translation.t('labels', 'fullNamePlaceholder')" />
+          @if (registerForm.controls.fullName.touched && registerForm.controls.fullName.hasError('required')) {
+            <small class="field-error">{{ translation.t('alerts', 'fullNameRequired') }}</small>
+          }
+          @if (registerForm.controls.fullName.touched && registerForm.controls.fullName.hasError('maxlength')) {
+            <small class="field-error">{{ translation.t('alerts', 'fullNameMaxLength') }}</small>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="email">{{ translation.t('labels', 'email') }}</label>
+          <input id="email" type="email" formControlName="email" autocomplete="email" inputmode="email"
+            dir="ltr" [placeholder]="translation.t('labels', 'emailPlaceholder')" />
+          @if (registerForm.controls.email.touched && registerForm.controls.email.hasError('required')) {
+            <small class="field-error">{{ translation.t('alerts', 'emailRequired') }}</small>
+          }
+          @if (registerForm.controls.email.touched && registerForm.controls.email.hasError('email')) {
+            <small class="field-error">{{ translation.t('alerts', 'emailInvalid') }}</small>
+          }
+        </div>
+
+        <div class="form-row">
+          <div class="form-field">
+            <label for="password">{{ translation.t('labels', 'password') }}</label>
+            <input id="password" type="password" formControlName="password" autocomplete="new-password"
+              dir="ltr" [placeholder]="translation.t('labels', 'passwordPlaceholder')" />
+            @if (registerForm.controls.password.touched && registerForm.controls.password.hasError('required')) {
+              <small class="field-error">{{ translation.t('alerts', 'passwordRequired') }}</small>
+            }
+            @if (registerForm.controls.password.touched && (registerForm.controls.password.hasError('minlength') || registerForm.controls.password.hasError('pattern'))) {
+              <small class="field-error">{{ translation.t('alerts', 'passwordPolicy') }}</small>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="confirmPassword">{{ translation.t('labels', 'confirmPassword') }}</label>
+            <input id="confirmPassword" type="password" formControlName="confirmPassword"
+              autocomplete="new-password" dir="ltr"
+              [placeholder]="translation.t('labels', 'confirmPasswordPlaceholder')" />
+            @if (registerForm.controls.confirmPassword.touched && registerForm.controls.confirmPassword.hasError('required')) {
+              <small class="field-error">{{ translation.t('alerts', 'confirmPasswordRequired') }}</small>
+            }
+            @if (registerForm.controls.confirmPassword.touched && registerForm.hasError('passwordsMismatch')) {
+              <small class="field-error">{{ translation.t('alerts', 'passwordsMismatch') }}</small>
+            }
+          </div>
+        </div>
+
+        <button class="submit-button" type="submit" [disabled]="isSubmitting()">
+          @if (isSubmitting()) {
+            <span class="spinner" aria-hidden="true"></span>
+            {{ translation.t('labels', 'creatingAccount') }}
+          } @else {
+            {{ translation.t('labels', 'createAccount') }}
+            <span class="button-arrow" aria-hidden="true">→</span>
+          }
+        </button>
+      </form>
+
+      <p class="login-prompt">
+        {{ translation.t('labels', 'alreadyHaveAccount') }}
+        <span>{{ translation.t('labels', 'signIn') }}</span>
+      </p>
+    </div>
+  </section>
+</main>

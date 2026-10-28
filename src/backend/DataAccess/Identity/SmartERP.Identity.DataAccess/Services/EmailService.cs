@@ -31,11 +31,18 @@ public sealed class EmailService : IEmailService
         message.Subject = subject;
         message.Body = new BodyBuilder { HtmlBody = htmlBody }.ToMessageBody();
 
-        using var smtpClient = new SmtpClient();
+        using var smtpClient = new SmtpClient
+        {
+            Timeout = (int)TimeSpan
+                .FromSeconds(_emailOptions.TimeoutSeconds)
+                .TotalMilliseconds
+        };
 
-        var securityOption = _emailOptions.UseStartTls
-            ? SecureSocketOptions.StartTls
-            : SecureSocketOptions.Auto;
+        var securityOption = _emailOptions.SmtpPort == 465
+            ? SecureSocketOptions.SslOnConnect
+            : _emailOptions.UseStartTls
+                ? SecureSocketOptions.StartTls
+                : SecureSocketOptions.None;
 
         await smtpClient.ConnectAsync(
             _emailOptions.SmtpHost,
