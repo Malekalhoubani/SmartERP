@@ -1,6 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs';
 
 import { TranslationService } from '../../../../core/i18n/translation.service';
@@ -21,6 +21,8 @@ export class LoginComponent {
   private readonly authService = inject(AuthService);
   private readonly authState = inject(AuthStateService);
   private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
 
   readonly translation = inject(TranslationService);
   readonly isSubmitting = signal(false);
@@ -34,6 +36,10 @@ export class LoginComponent {
 
   togglePasswordVisibility(): void {
     this.showPassword.update((isVisible) => !isVisible);
+  }
+
+  loginWithGoogle(): void {
+    this.authService.startGoogleLogin();
   }
 
   onSubmit(): void {
@@ -60,6 +66,8 @@ export class LoginComponent {
           );
 
           this.loginForm.reset();
+          const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
+          void this.router.navigateByUrl(returnUrl || '/account/sessions');
         },
         error: () => {
         },

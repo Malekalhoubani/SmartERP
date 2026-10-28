@@ -1,0 +1,13 @@
+<main class="action-page">
+  <section class="action-card">
+    <div class="action-icon" aria-hidden="true">G</div>
+    @if (failed()) {
+      <h1>{{ translation.t('labels', 'googleLoginFailedTitle') }}</h1>
+      <p>{{ translation.t('alerts', 'googleLoginFailed') }}</p>
+      <a class="primary-action" routerLink="/auth/login">{{ translation.t('labels', 'backToLogin') }}</a>
+    } @else {
+      <span class="spinner spinner--dark" aria-hidden="true"></span>
+      <h1>{{ translation.t('labels', 'completingGoogleLogin') }}</h1>
+    }
+  </section>
+</main>

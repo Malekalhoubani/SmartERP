@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
   {
@@ -30,9 +31,38 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'auth/forgot-password',
+    loadComponent: () =>
+      import('./features/auth/pages/forgot-password/forgot-password.component').then(
+        (component) => component.ForgotPasswordComponent,
+      ),
+  },
+  {
+    path: 'auth/reset-password',
+    loadComponent: () =>
+      import('./features/auth/pages/reset-password/reset-password.component').then(
+        (component) => component.ResetPasswordComponent,
+      ),
+  },
+  {
+    path: 'auth/google-callback',
+    loadComponent: () =>
+      import('./features/auth/pages/google-callback/google-callback.component').then(
+        (component) => component.GoogleCallbackComponent,
+      ),
+  },
+  {
+    path: 'account/sessions',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/auth/pages/sessions/sessions.component').then(
+        (component) => component.SessionsComponent,
+      ),
+  },
+  {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'auth/register',
+    redirectTo: 'account/sessions',
   },
   {
     path: '**',
