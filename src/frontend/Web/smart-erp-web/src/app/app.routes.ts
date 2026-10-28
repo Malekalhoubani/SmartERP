@@ -23,6 +23,13 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'auth/login',
+    loadComponent: () =>
+      import('./features/auth/pages/login/login.component').then(
+        (component) => component.LoginComponent,
+      ),
+  },
+  {
     path: '',
     pathMatch: 'full',
     redirectTo: 'auth/register',

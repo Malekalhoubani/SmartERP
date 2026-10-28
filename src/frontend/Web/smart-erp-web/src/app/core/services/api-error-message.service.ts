@@ -7,7 +7,28 @@ export class ApiErrorMessageService {
   private readonly translation = inject(TranslationService);
 
   getMessage(error: HttpErrorResponse): string {
+    const errorCode = this.getErrorCode(error);
+
+    if (errorCode) {
+      return this.translation.t('alerts', this.getErrorCodeMessageKey(errorCode));
+    }
+
     return this.translation.t('alerts', this.getMessageKey(error.status));
+  }
+
+  private getErrorCode(error: HttpErrorResponse): string | null {
+    const code = error.error?.code;
+    return typeof code === 'string' && code.length > 0 ? code : null;
+  }
+
+  private getErrorCodeMessageKey(code: string): string {
+    const messageKeys: Record<string, string> = {
+      invalid_credentials: 'invalidCredentials',
+      email_not_confirmed: 'emailConfirmationRequired',
+      account_locked: 'accountLocked',
+    };
+
+    return messageKeys[code] ?? 'requestFailed';
   }
 
   private getMessageKey(status: number): string {

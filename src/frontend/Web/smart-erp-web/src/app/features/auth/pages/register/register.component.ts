@@ -11,7 +11,7 @@ import { TranslationService } from '../../../../core/i18n/translation.service';
 import { AuthService } from '../../../../core/services/auth.service';
 import { ToastService } from '../../../../core/services/toast.service';
 import { RegisterRequestDto } from '../../dto/register/register.dto';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 const passwordsMatchValidator = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('password')?.value;
   const confirmPassword = control.get('confirmPassword')?.value;
@@ -21,7 +21,7 @@ const passwordsMatchValidator = (control: AbstractControl): ValidationErrors | n
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './register.component.html',
   styleUrl: './register.component.scss',
 })
