@@ -16,7 +16,9 @@ namespace SmartERP.ServiceDefaults.FoundationOptions
             var incomingCorrelationId = context.Request.Headers[HeaderName].FirstOrDefault();
             var correlationId = IsValid(incomingCorrelationId)?incomingCorrelationId!: Guid.NewGuid().ToString("N");
 
-            context.TraceIdentifier=correlationId;
+            context.TraceIdentifier = correlationId;
+
+            context.Request.Headers[HeaderName] = correlationId;
 
             Activity.Current?.SetTag("correlation.id", correlationId);
 
