@@ -97,6 +97,15 @@
 
             <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" novalidate>
 
+                <button class="google-button" type="button" (click)="loginWithGoogle()">
+                    <span aria-hidden="true">G</span>
+                    {{ translation.t('labels', 'continueWithGoogle') }}
+                </button>
+
+                <div class="divider">
+                    <span>{{ translation.t('labels', 'orUseEmail') }}</span>
+                </div>
+
                 <div class="form-field">
                     <label for="email">
                         {{ translation.t('labels', 'email') }}

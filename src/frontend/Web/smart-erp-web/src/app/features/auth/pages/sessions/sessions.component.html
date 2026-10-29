@@ -1,0 +1,60 @@
+<main class="sessions-page">
+  <header class="topbar">
+    <div class="brand"><span>S</span><strong>SmartERP</strong></div>
+    <div class="topbar-actions">
+      <button class="language-button" type="button" (click)="translation.toggleLanguage()">◎ {{ translation.t('labels', 'language') }}</button>
+      <button class="logout-button" type="button" [disabled]="isLoggingOut()" (click)="logout()">{{ translation.t('labels', 'logout') }}</button>
+    </div>
+  </header>
+
+  <section class="account-header">
+    <div>
+      <span class="eyebrow">{{ translation.t('labels', 'accountSecurity') }}</span>
+      <h1>{{ translation.t('labels', 'sessionsTitle') }}</h1>
+      <p>{{ translation.t('labels', 'sessionsDescription') }}</p>
+    </div>
+    <button class="danger-button" type="button" [disabled]="isLoggingOut()" (click)="logoutAll()">
+      {{ translation.t('labels', 'logoutAll') }}
+    </button>
+  </section>
+
+  <section class="profile-card">
+    <div class="avatar">{{ (authState.currentUser()?.fullName || 'U').charAt(0).toUpperCase() }}</div>
+    <div><strong>{{ authState.currentUser()?.fullName }}</strong><span>{{ authState.currentUser()?.email }}</span></div>
+    <div class="claim-list">
+      @for (role of authState.roles(); track role) { <span>{{ role }}</span> }
+    </div>
+  </section>
+
+  <section class="permission-card" *appHasPermission="'identity.permissions.view'">
+    <strong>{{ translation.t('labels', 'yourPermissions') }}</strong>
+    <div class="claim-list">
+      @for (permission of authState.permissions(); track permission) { <span>{{ permission }}</span> }
+    </div>
+  </section>
+
+  <section class="session-list">
+    @if (isLoading()) {
+      <div class="state-card">{{ translation.t('labels', 'loadingSessions') }}</div>
+    } @else if (sessions().length === 0) {
+      <div class="state-card">{{ translation.t('labels', 'noSessions') }}</div>
+    } @else {
+      @for (session of sessions(); track session.sessionId) {
+        <article class="session-card" [class.session-card--current]="session.isCurrent">
+          <div class="device-icon" aria-hidden="true">▣</div>
+          <div class="session-details">
+            <div class="session-title">
+              <strong>{{ session.userAgent || translation.t('labels', 'unknownDevice') }}</strong>
+              @if (session.isCurrent) { <span>{{ translation.t('labels', 'currentSession') }}</span> }
+            </div>
+            <p>{{ session.ipAddress || translation.t('labels', 'unknownIp') }}</p>
+            <small>{{ translation.t('labels', 'lastActivity') }}: {{ session.lastActivityAtUtc | date:'medium' }}</small>
+          </div>
+          <button type="button" [disabled]="pendingSessionId() === session.sessionId" (click)="revokeSession(session)">
+            {{ translation.t('labels', session.isCurrent ? 'logout' : 'revokeSession') }}
+          </button>
+        </article>
+      }
+    }
+  </section>
+</main>
