@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -13,6 +15,7 @@ using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using System.Threading.RateLimiting;
 
 namespace SmartERP.ServiceDefaults.FoundationOptions
 {
@@ -20,6 +23,7 @@ namespace SmartERP.ServiceDefaults.FoundationOptions
     {
         public const string WebCorsPolicy = "web";
         public const string AuthenticationRateLimitPolicy ="authentication";
+        public const string GatewayRateLimitPolicy = "gateway";
 
 
         public static WebApplicationBuilder AddSmartErpFoundation (this WebApplicationBuilder builder)
@@ -65,23 +69,23 @@ namespace SmartERP.ServiceDefaults.FoundationOptions
                 options.RejectionStatusCode =
                     StatusCodes.Status429TooManyRequests;
 
-                options.AddFixedWindowLimiter(
+                options.OnRejected = WriteRateLimitResponseAsync;
+
+                options.AddPolicy(
                     AuthenticationRateLimitPolicy,
-                    limiter =>
-                    {
-                        limiter.PermitLimit =
-                            rateLimitSettings
-                                .AuthenticationPermitLimit;
+                    httpContext => CreateFixedWindowPartition(
+                        httpContext,
+                        rateLimitSettings.AuthenticationPermitLimit,
+                        rateLimitSettings.AuthenticationWindowSeconds,
+                        AuthenticationRateLimitPolicy));
 
-                        limiter.Window =
-                            TimeSpan.FromSeconds(
-                                rateLimitSettings
-                                    .AuthenticationWindowSeconds);
-
-                        limiter.QueueLimit = 0;
-
-                        limiter.AutoReplenishment = true;
-                    });
+                options.AddPolicy(
+                    GatewayRateLimitPolicy,
+                    httpContext => CreateFixedWindowPartition(
+                        httpContext,
+                        rateLimitSettings.GatewayPermitLimit,
+                        rateLimitSettings.GatewayWindowSeconds,
+                        GatewayRateLimitPolicy));
             });
 
             builder.Services.Configure<ForwardedHeadersOptions>(options =>
@@ -102,7 +106,7 @@ namespace SmartERP.ServiceDefaults.FoundationOptions
 
             app.UseExceptionHandler();
 
-            app.UseStatusCodePages();
+            app.UseStatusCodePages(WriteStatusCodeResponseAsync);
 
             if (!app.Environment.IsDevelopment())
             {
@@ -145,7 +149,128 @@ namespace SmartERP.ServiceDefaults.FoundationOptions
                     settings =>
                         settings.AuthenticationWindowSeconds > 0,
                     "Authentication window must be positive.")
+                .Validate(
+                    settings => settings.GatewayPermitLimit > 0,
+                    "Gateway permit limit must be positive.")
+                .Validate(
+                    settings => settings.GatewayWindowSeconds > 0,
+                    "Gateway window must be positive.")
                 .ValidateOnStart();
+        }
+
+        private static RateLimitPartition<string> CreateFixedWindowPartition(
+            HttpContext httpContext,
+            int permitLimit,
+            int windowSeconds,
+            string policyName)
+        {
+            var clientAddress =
+                httpContext.Connection.RemoteIpAddress?.ToString()
+                ?? "unknown";
+
+            return RateLimitPartition.GetFixedWindowLimiter(
+                $"{policyName}:{clientAddress}",
+                _ => new FixedWindowRateLimiterOptions
+                {
+                    PermitLimit = permitLimit,
+                    Window = TimeSpan.FromSeconds(windowSeconds),
+                    QueueLimit = 0,
+                    QueueProcessingOrder =
+                        QueueProcessingOrder.OldestFirst,
+                    AutoReplenishment = true
+                });
+        }
+
+        private static async ValueTask WriteRateLimitResponseAsync(
+            OnRejectedContext rejectedContext,
+            CancellationToken cancellationToken)
+        {
+            var httpContext = rejectedContext.HttpContext;
+
+            httpContext.Response.StatusCode =
+                StatusCodes.Status429TooManyRequests;
+
+            if (rejectedContext.Lease.TryGetMetadata(
+                    MetadataName.RetryAfter,
+                    out var retryAfter))
+            {
+                httpContext.Response.Headers.RetryAfter =
+                    Math.Ceiling(retryAfter.TotalSeconds).ToString();
+            }
+
+            await WriteProblemDetailsAsync(
+                httpContext,
+                StatusCodes.Status429TooManyRequests,
+                "Too many requests",
+                "Too many requests were received. Please try again later.",
+                cancellationToken);
+        }
+
+        private static Task WriteStatusCodeResponseAsync(
+            StatusCodeContext statusCodeContext)
+        {
+            var httpContext = statusCodeContext.HttpContext;
+            var (title, detail) = httpContext.Response.StatusCode switch
+            {
+                StatusCodes.Status401Unauthorized =>
+                    ("Unauthorized", "Authentication is required to access this resource."),
+
+                StatusCodes.Status403Forbidden =>
+                    ("Forbidden", "You do not have permission to access this resource."),
+
+                StatusCodes.Status404NotFound =>
+                    ("Resource not found", "The requested resource could not be found."),
+
+                StatusCodes.Status405MethodNotAllowed =>
+                    ("Method not allowed", "The HTTP method is not supported for this resource."),
+
+                StatusCodes.Status429TooManyRequests =>
+                    ("Too many requests", "Too many requests were received. Please try again later."),
+
+                _ =>
+                    ("Request failed", "The request could not be completed.")
+            };
+
+            return WriteProblemDetailsAsync(
+                    httpContext,
+                    httpContext.Response.StatusCode,
+                    title,
+                    detail,
+                    httpContext.RequestAborted)
+                .AsTask();
+        }
+
+        private static async ValueTask WriteProblemDetailsAsync(
+            HttpContext httpContext,
+            int statusCode,
+            string title,
+            string detail,
+            CancellationToken cancellationToken)
+        {
+            var problemDetails = new ProblemDetails
+            {
+                Status = statusCode,
+                Title = title,
+                Detail = detail,
+                Instance = httpContext.Request.Path
+            };
+
+            problemDetails.Extensions["correlationId"] =
+                httpContext.TraceIdentifier;
+
+            problemDetails.Extensions["timestamp"] =
+                DateTimeOffset.UtcNow;
+
+            var problemDetailsService =
+                httpContext.RequestServices
+                    .GetRequiredService<IProblemDetailsService>();
+
+            await problemDetailsService.TryWriteAsync(
+                new ProblemDetailsContext
+                {
+                    HttpContext = httpContext,
+                    ProblemDetails = problemDetails
+                });
         }
 
         public static WebApplication MapSmartErpFoundation(this WebApplication app,string serviceName)

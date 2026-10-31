@@ -18,5 +18,9 @@ namespace SmartERP.ServiceDefaults.FoundationOptions
         public int AuthenticationPermitLimit { get; init; } = 5;
         public int AuthenticationWindowSeconds { get; init; } = 60;
 
+        public int GatewayPermitLimit { get; init; } = 100;
+
+        public int GatewayWindowSeconds { get; init; } = 60;
+
     }
 }
