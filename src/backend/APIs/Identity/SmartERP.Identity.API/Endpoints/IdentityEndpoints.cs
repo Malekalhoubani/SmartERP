@@ -530,7 +530,6 @@ public static class IdentityEndpoints
             cookieName,
             CreateRefreshTokenCookieOptions(DateTimeOffset.UnixEpoch));
     }
-
     private static CookieOptions CreateRefreshTokenCookieOptions(
         DateTimeOffset expiresAtUtc)
     {
@@ -540,7 +539,7 @@ public static class IdentityEndpoints
             Secure = true,
             SameSite = SameSiteMode.Strict,
             IsEssential = true,
-            Path = "/api/auth",
+            Path = "/api/identity/api/auth",
             Expires = expiresAtUtc
         };
     }

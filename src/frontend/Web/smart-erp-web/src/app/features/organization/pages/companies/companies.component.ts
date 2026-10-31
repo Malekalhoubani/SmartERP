@@ -54,7 +54,11 @@ export class CompaniesComponent implements OnInit {
       : this.organizationService.activateCompany(company.id);
 
     request.pipe(finalize(() => this.pendingCompanyId.set(null))).subscribe({
-      next: (updatedCompany) => {
+      next: () => {
+        const updatedCompany: CompanyResponseDto = {
+          ...company,
+          isActive: !company.isActive,
+        };
         this.companies.update((companies) =>
           companies.map((item) => (item.id === updatedCompany.id ? updatedCompany : item)),
         );

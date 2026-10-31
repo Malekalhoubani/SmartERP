@@ -36,15 +36,15 @@ export class OrganizationService {
     );
   }
 
-  activateCompany(companyId: number): Observable<CompanyResponseDto> {
-    return this.httpClient.patch<CompanyResponseDto>(
+  activateCompany(companyId: number): Observable<void> {
+    return this.httpClient.patch<void>(
       `${this.companiesUrl}/${companyId}/activate`,
       {},
     );
   }
 
-  deactivateCompany(companyId: number): Observable<CompanyResponseDto> {
-    return this.httpClient.patch<CompanyResponseDto>(
+  deactivateCompany(companyId: number): Observable<void> {
+    return this.httpClient.patch<void>(
       `${this.companiesUrl}/${companyId}/deactivate`,
       {},
     );

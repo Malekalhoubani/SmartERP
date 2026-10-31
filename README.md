@@ -1,6 +1,6 @@
-# SmartERP foundation
+# SmartERP
 
-This repository currently contains only the main solution projects and their dependency references. Business entities, repository contracts, services, database contexts, controllers, Docker configuration, and ERP modules will be added during the implementation roadmap.
+SmartERP is an ASP.NET Core microservices and Angular ERP platform. The current implementation includes Identity, company management, API Gateway integration, and a company-scoped Product Catalog.
 
 ## Dependency direction
 
@@ -28,4 +28,21 @@ src/frontend/
   Web/
 ```
 
-No business implementation has been added yet.
+## Implemented modules
+
+- Identity: registration, confirmation, login, JWT/refresh sessions, roles and permissions, password recovery, Google authentication.
+- Organization: company creation, editing, activation and current-company context.
+- Product Catalog: products, categories, units of measure, brands, barcodes, product variants, pricing and tax configuration.
+- Angular: bilingual English/Arabic authentication and administration UI with a responsive side menu.
+
+## Local services
+
+```text
+Identity API      https://localhost:7054
+Organization API  https://localhost:7043
+Inventory API     https://localhost:7274
+Gateway           https://localhost:7290
+Angular           http://localhost:4200
+```
+
+Identity, Gateway, Organization and Inventory must use the same Base64 `Jwt:SigningKey` through .NET User Secrets. The Angular application communicates with services through the Gateway only.

@@ -1,0 +1,27 @@
+<div class="app-shell" [class.menu-open]="menuOpen()">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/organization/companies"><span>S</span> SmartERP</a>
+    <div class="company-context">
+      <small>{{ translation.t('labels','currentCompany') }}</small>
+      <strong>{{ companyContext.currentCompany()?.name || translation.t('labels','selectCompany') }}</strong>
+    </div>
+    <nav>
+      <p>{{ translation.t('menu','organization') }}</p>
+      <a routerLink="/organization/companies" routerLinkActive="active">▦ {{ translation.t('menu','companies') }}</a>
+      <p>{{ translation.t('menu','productCatalog') }}</p>
+      <a routerLink="/catalog/products" routerLinkActive="active">◫ {{ translation.t('menu','products') }}</a>
+      <a routerLink="/catalog/categories" routerLinkActive="active">⌗ {{ translation.t('menu','categories') }}</a>
+      <a routerLink="/catalog/units-of-measure" routerLinkActive="active">▣ {{ translation.t('menu','unitsOfMeasure') }}</a>
+      <a routerLink="/catalog/brands" routerLinkActive="active">◆ {{ translation.t('menu','brands') }}</a>
+      <a routerLink="/catalog/barcodes" routerLinkActive="active">▥ {{ translation.t('menu','barcodes') }}</a>
+      <a routerLink="/catalog/product-variants" routerLinkActive="active">◇ {{ translation.t('menu','productVariants') }}</a>
+      <a routerLink="/catalog/pricing" routerLinkActive="active">$ {{ translation.t('menu','pricing') }}</a>
+      <a routerLink="/catalog/tax-configuration" routerLinkActive="active">% {{ translation.t('menu','taxConfiguration') }}</a>
+      <p>{{ translation.t('labels','accountSecurity') }}</p>
+      <a routerLink="/account/sessions" routerLinkActive="active">◉ {{ translation.t('labels','sessionsTitle') }}</a>
+    </nav>
+    <button type="button" (click)="translation.toggleLanguage()">◎ {{ translation.t('labels','language') }}</button>
+  </aside>
+  <button class="menu-toggle" type="button" (click)="menuOpen.update(value => !value)">☰</button>
+  <section class="page-content" (click)="menuOpen.set(false)"><router-outlet /></section>
+</div>

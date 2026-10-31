@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
 import { companyAccessGuard } from './core/guards/company-access.guard';
+import { currentCompanyGuard } from './core/guards/company-access.guard';
 
 export const routes: Routes = [
   {
@@ -53,46 +54,38 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'account/sessions',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/auth/pages/sessions/sessions.component').then(
-        (component) => component.SessionsComponent,
-      ),
-  },
-  {
-    path: 'organization/companies',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/organization/pages/companies/companies.component').then(
-        (component) => component.CompaniesComponent,
-      ),
-  },
-  {
-    path: 'organization/companies/new',
-    canActivate: [authGuard],
-    loadComponent: () =>
-      import('./features/organization/pages/company-form/company-form.component').then(
-        (component) => component.CompanyFormComponent,
-      ),
-  },
-  {
-    path: 'organization/companies/:companyId/edit',
-    canActivate: [authGuard, companyAccessGuard],
-    loadComponent: () =>
-      import('./features/organization/pages/company-form/company-form.component').then(
-        (component) => component.CompanyFormComponent,
-      ),
-  },
-  {
-    path: 'organization',
-    pathMatch: 'full',
-    redirectTo: 'organization/companies',
-  },
-  {
     path: '',
-    pathMatch: 'full',
-    redirectTo: 'organization/companies',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./shared/components/app-shell/app-shell.component').then(
+        (component) => component.AppShellComponent,
+      ),
+    children: [
+      {
+        path: 'account/sessions',
+        loadComponent: () => import('./features/auth/pages/sessions/sessions.component').then((component) => component.SessionsComponent),
+      },
+      {
+        path: 'organization/companies',
+        loadComponent: () => import('./features/organization/pages/companies/companies.component').then((component) => component.CompaniesComponent),
+      },
+      {
+        path: 'organization/companies/new',
+        loadComponent: () => import('./features/organization/pages/company-form/company-form.component').then((component) => component.CompanyFormComponent),
+      },
+      {
+        path: 'organization/companies/:companyId/edit',
+        canActivate: [companyAccessGuard],
+        loadComponent: () => import('./features/organization/pages/company-form/company-form.component').then((component) => component.CompanyFormComponent),
+      },
+      {
+        path: 'catalog/:type',
+        canActivate: [currentCompanyGuard],
+        loadComponent: () => import('./features/catalog/pages/catalog-list/catalog-list.component').then((component) => component.CatalogListComponent),
+      },
+      { path: 'organization', pathMatch: 'full', redirectTo: 'organization/companies' },
+      { path: '', pathMatch: 'full', redirectTo: 'organization/companies' },
+    ],
   },
   {
     path: '**',

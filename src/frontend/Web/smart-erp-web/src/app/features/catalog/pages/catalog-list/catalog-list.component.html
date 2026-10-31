@@ -1,0 +1,32 @@
+<main class="catalog-page">
+  <header>
+    <div><p>{{ translation.t('menu','productCatalog') }}</p><h1>{{ title() }}</h1><span>{{ translation.t('labels','catalogDescription') }}</span></div>
+    <button type="button" (click)="openCreate()">+ {{ translation.t('labels','addCatalogItem') }}</button>
+  </header>
+
+  @if (showForm()) {
+    <section class="editor-card">
+      <div class="editor-heading"><h2>{{ translation.t('labels',editingId() ? 'editCatalogItem' : 'newCatalogItem') }}</h2><button type="button" (click)="cancelEdit()">×</button></div>
+      <form [formGroup]="form" (ngSubmit)="save()">
+        <label>{{ translation.t('labels','name') }}<input formControlName="name" /></label>
+        <label>{{ translation.t('labels','code') }}<input formControlName="code" /></label>
+        <label class="wide">{{ translation.t('labels','description') }}<textarea formControlName="description"></textarea></label>
+        @if (showsRelatedItem()) { <label>{{ translation.t('labels','relatedItemId') }}<input type="number" min="1" formControlName="relatedItemId" /></label> }
+        @if (showsAmount()) { <label>{{ translation.t('labels','amount') }}<input type="number" min="0" step="0.01" formControlName="amount" /></label><label>{{ translation.t('labels','currencyCode') }}<input maxlength="3" formControlName="currencyCode" /></label> }
+        @if (showsRate()) { <label>{{ translation.t('labels','taxRate') }}<input type="number" min="0" max="100" step="0.01" formControlName="rate" /></label> }
+        <label class="wide">{{ translation.t('labels','additionalData') }}<textarea formControlName="metadataJson" placeholder='{"key":"value"}'></textarea></label>
+        <label class="checkbox"><input type="checkbox" formControlName="isActive" /> {{ translation.t('labels','active') }}</label>
+        <div class="form-actions"><button class="secondary" type="button" (click)="cancelEdit()">{{ translation.t('labels','cancel') }}</button><button type="submit" [disabled]="isSaving()">{{ translation.t('labels',isSaving() ? 'savingCatalogItem' : 'saveCatalogItem') }}</button></div>
+      </form>
+    </section>
+  }
+
+  <section class="table-card">
+    @if (isLoading()) { <div class="state">{{ translation.t('labels','loadingCatalog') }}</div> }
+    @else if (items().length === 0) { <div class="state"><strong>{{ translation.t('labels','emptyCatalog') }}</strong><span>{{ translation.t('labels','emptyCatalogDescription') }}</span></div> }
+    @else {
+      <div class="table-scroll"><table><thead><tr><th>{{ translation.t('labels','name') }}</th><th>{{ translation.t('labels','code') }}</th><th>{{ translation.t('labels','status') }}</th><th>{{ translation.t('labels','actions') }}</th></tr></thead>
+      <tbody>@for (item of items(); track item.id) { <tr><td><strong>{{ item.name }}</strong><small>{{ item.description }}</small></td><td><code>{{ item.code }}</code></td><td><span class="status" [class.inactive]="!item.isActive">{{ translation.t('labels',item.isActive ? 'active' : 'inactive') }}</span></td><td class="actions"><button type="button" (click)="edit(item)">{{ translation.t('labels','edit') }}</button><button type="button" (click)="toggleStatus(item)">{{ translation.t('labels',item.isActive ? 'deactivate' : 'activate') }}</button></td></tr> }</tbody></table></div>
+    }
+  </section>
+</main>
