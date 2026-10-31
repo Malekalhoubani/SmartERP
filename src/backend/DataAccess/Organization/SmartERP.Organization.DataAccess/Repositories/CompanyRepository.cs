@@ -14,18 +14,14 @@ public sealed class CompanyRepository : ICompanyRepository
         _dbContext = dbContext;
     }
 
-    public Task<Company?> GetByIdAsync(
-        int companyId,
-        CancellationToken cancellationToken = default)
+    public Task<Company?> GetByIdAsync(int companyId,CancellationToken cancellationToken = default)
     {
         return _dbContext.Companies.SingleOrDefaultAsync(
             company => company.Id == companyId,
             cancellationToken);
     }
 
-    public Task<Company?> GetByCodeAsync(
-        string code,
-        CancellationToken cancellationToken = default)
+    public Task<Company?> GetByCodeAsync(string code,CancellationToken cancellationToken = default)
     {
         var normalizedCode = code.Trim().ToUpperInvariant();
 
@@ -36,9 +32,7 @@ public sealed class CompanyRepository : ICompanyRepository
                 cancellationToken);
     }
 
-    public async Task<IReadOnlyList<Company>> GetForUserAsync(
-        int userId,
-        CancellationToken cancellationToken = default)
+    public async Task<IReadOnlyList<Company>> GetForUserAsync(int userId,CancellationToken cancellationToken = default)
     {
         return await _dbContext.Companies
             .AsNoTracking()
@@ -48,10 +42,7 @@ public sealed class CompanyRepository : ICompanyRepository
             .ToListAsync(cancellationToken);
     }
 
-    public Task<bool> IsCodeInUseAsync(
-        string code,
-        int? excludedCompanyId = null,
-        CancellationToken cancellationToken = default)
+    public Task<bool> IsCodeInUseAsync(string code,int? excludedCompanyId = null,CancellationToken cancellationToken = default)
     {
         var normalizedCode = code.Trim().ToUpperInvariant();
         var query = _dbContext.Companies
@@ -66,9 +57,7 @@ public sealed class CompanyRepository : ICompanyRepository
         return query.AnyAsync(cancellationToken);
     }
 
-    public async Task AddAsync(
-        Company company,
-        CancellationToken cancellationToken = default)
+    public async Task AddAsync(Company company,CancellationToken cancellationToken = default)
     {
         await _dbContext.Companies.AddAsync(
             company,
@@ -79,5 +68,15 @@ public sealed class CompanyRepository : ICompanyRepository
         CancellationToken cancellationToken = default)
     {
         return _dbContext.SaveChangesAsync(cancellationToken);
+    }
+
+    public Task<CompanyMembership?> GetMembershipAsync(int companyId, int userId, CancellationToken cancellationToken = default)
+    {
+        return _dbContext.CompanyMemberships.AsNoTracking().SingleOrDefaultAsync(
+        membership =>
+            membership.CompanyId == companyId &&
+            membership.UserId == userId &&
+            membership.IsActive,
+        cancellationToken);
     }
 }
