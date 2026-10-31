@@ -67,7 +67,7 @@ export class LoginComponent {
 
           this.loginForm.reset();
           const returnUrl = this.route.snapshot.queryParamMap.get('returnUrl');
-          void this.router.navigateByUrl(returnUrl || '/account/sessions');
+          void this.router.navigateByUrl(returnUrl || '/organization/companies');
         },
         error: () => {
         },

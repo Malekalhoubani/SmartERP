@@ -1,3 +1,7 @@
+const gatewayApiUrl = 'https://localhost:7290/api';
+
 export const environment = {
-  identityApiUrl: 'https://localhost:7290/api/identity/api/auth',
+  gatewayApiUrl,
+  identityApiUrl: `${gatewayApiUrl}/identity/api/auth`,
+  organizationApiUrl: `${gatewayApiUrl}/organization/api`,
 };

@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './core/guards/auth.guard';
+import { companyAccessGuard } from './core/guards/company-access.guard';
 
 export const routes: Routes = [
   {
@@ -60,12 +61,41 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'organization/companies',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/organization/pages/companies/companies.component').then(
+        (component) => component.CompaniesComponent,
+      ),
+  },
+  {
+    path: 'organization/companies/new',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/organization/pages/company-form/company-form.component').then(
+        (component) => component.CompanyFormComponent,
+      ),
+  },
+  {
+    path: 'organization/companies/:companyId/edit',
+    canActivate: [authGuard, companyAccessGuard],
+    loadComponent: () =>
+      import('./features/organization/pages/company-form/company-form.component').then(
+        (component) => component.CompanyFormComponent,
+      ),
+  },
+  {
+    path: 'organization',
+    pathMatch: 'full',
+    redirectTo: 'organization/companies',
+  },
+  {
     path: '',
     pathMatch: 'full',
-    redirectTo: 'account/sessions',
+    redirectTo: 'organization/companies',
   },
   {
     path: '**',
-    redirectTo: 'auth/register',
+    redirectTo: 'auth/login',
   },
 ];

@@ -23,17 +23,18 @@ export const authTokenInterceptor: HttpInterceptorFn = (request, next) => {
   const authState = inject(AuthStateService);
   const authSession = inject(AuthSessionService);
   const router = inject(Router);
+  const isGatewayRequest = request.url.startsWith(environment.gatewayApiUrl);
   const isIdentityRequest = request.url.startsWith(environment.identityApiUrl);
-  const isPublicRequest = publicAuthenticationPaths.some((path) =>
-    request.url.includes(path),
-  );
+  const isPublicRequest =
+    isIdentityRequest &&
+    publicAuthenticationPaths.some((path) => request.url.includes(path));
 
   let outgoingRequest = isIdentityRequest
     ? request.clone({ withCredentials: true })
     : request;
   const accessToken = authState.getAccessToken();
 
-  if (accessToken && isIdentityRequest && !isPublicRequest) {
+  if (accessToken && isGatewayRequest && !isPublicRequest) {
     outgoingRequest = outgoingRequest.clone({
       setHeaders: { Authorization: `Bearer ${accessToken}` },
     });
@@ -43,7 +44,7 @@ export const authTokenInterceptor: HttpInterceptorFn = (request, next) => {
     catchError((error: HttpErrorResponse) => {
       if (
         error.status !== 401 ||
-        !isIdentityRequest ||
+        !isGatewayRequest ||
         isPublicRequest ||
         request.context.get(AUTH_RETRY)
       ) {

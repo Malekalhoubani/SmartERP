@@ -1,0 +1,108 @@
+<main class="workspace-shell">
+  <header class="topbar">
+    <a class="brand" routerLink="/organization/companies">
+      <span class="brand-mark">S</span>
+      <span>{{ translation.t('labels', 'appName') }}</span>
+    </a>
+
+    <nav class="topbar-actions">
+      <a routerLink="/account/sessions">{{ translation.t('labels', 'accountSecurity') }}</a>
+      <button class="language-button" type="button" (click)="translation.toggleLanguage()">
+        ◎ {{ translation.t('labels', 'language') }}
+      </button>
+    </nav>
+  </header>
+
+  <section class="content">
+    <div class="page-heading">
+      <div>
+        <p class="eyebrow">{{ translation.t('labels', 'organizationEyebrow') }}</p>
+        <h1>{{ translation.t('labels', 'companiesTitle') }}</h1>
+        <p>{{ translation.t('labels', 'companiesDescription') }}</p>
+      </div>
+      <a class="primary-button" routerLink="/organization/companies/new">
+        <span>+</span> {{ translation.t('labels', 'createCompany') }}
+      </a>
+    </div>
+
+    @if (isLoading()) {
+      <div class="state-card">
+        <span class="spinner"></span>
+        <p>{{ translation.t('labels', 'loadingCompanies') }}</p>
+      </div>
+    } @else if (companies().length === 0) {
+      <div class="state-card empty-state">
+        <span class="empty-icon">🏢</span>
+        <h2>{{ translation.t('labels', 'noCompanies') }}</h2>
+        <p>{{ translation.t('labels', 'noCompaniesDescription') }}</p>
+        <a class="primary-button" routerLink="/organization/companies/new">
+          {{ translation.t('labels', 'createFirstCompany') }}
+        </a>
+      </div>
+    } @else {
+      <div class="company-grid">
+        @for (company of companies(); track company.id) {
+          <article
+            class="company-card"
+            [class.current]="companyContext.currentCompanyId() === company.id"
+          >
+            <div class="card-header">
+              <div class="company-avatar">{{ company.name.charAt(0).toUpperCase() }}</div>
+              <div class="company-status" [class.inactive]="!company.isActive">
+                <span></span>
+                {{ translation.t('labels', company.isActive ? 'active' : 'inactive') }}
+              </div>
+            </div>
+
+            <h2>{{ company.name }}</h2>
+            <p class="legal-name">{{ company.legalName }}</p>
+
+            <dl>
+              <div>
+                <dt>{{ translation.t('labels', 'companyCode') }}</dt>
+                <dd>{{ company.code }}</dd>
+              </div>
+              <div>
+                <dt>{{ translation.t('labels', 'createdAt') }}</dt>
+                <dd>{{ company.createdAtUtc | date: 'mediumDate' }}</dd>
+              </div>
+            </dl>
+
+            @if (companyContext.currentCompanyId() === company.id) {
+              <div class="current-badge">✓ {{ translation.t('labels', 'currentCompany') }}</div>
+            }
+
+            <div class="card-actions">
+              <button
+                class="select-button"
+                type="button"
+                [disabled]="!company.isActive || companyContext.currentCompanyId() === company.id"
+                (click)="selectCompany(company)"
+              >
+                {{
+                  translation.t(
+                    'labels',
+                    companyContext.currentCompanyId() === company.id ? 'selected' : 'selectCompany'
+                  )
+                }}
+              </button>
+              <button class="icon-button" type="button" (click)="editCompany(company)">
+                {{ translation.t('labels', 'edit') }}
+              </button>
+              <button
+                class="icon-button status-button"
+                type="button"
+                [disabled]="pendingCompanyId() === company.id"
+                (click)="toggleStatus(company)"
+              >
+                {{
+                  translation.t('labels', company.isActive ? 'deactivate' : 'activate')
+                }}
+              </button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </section>
+</main>
