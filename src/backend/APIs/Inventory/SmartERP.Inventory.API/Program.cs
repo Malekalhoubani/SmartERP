@@ -28,6 +28,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapSmartErpFoundation("SmartERP Inventory API");
 app.MapCatalogEndpoints();
+app.MapOperationalRecordEndpoints();
 
 if (app.Environment.IsDevelopment())
 {

@@ -83,6 +83,16 @@ export const routes: Routes = [
         canActivate: [currentCompanyGuard],
         loadComponent: () => import('./features/catalog/pages/catalog-list/catalog-list.component').then((component) => component.CatalogListComponent),
       },
+      {
+        path: 'inventory/:type',
+        canActivate: [currentCompanyGuard],
+        loadComponent: () => import('./features/operations/pages/operational-record-list/operational-record-list.component').then((component) => component.OperationalRecordListComponent),
+      },
+      {
+        path: 'purchasing/:type',
+        canActivate: [currentCompanyGuard],
+        loadComponent: () => import('./features/operations/pages/operational-record-list/operational-record-list.component').then((component) => component.OperationalRecordListComponent),
+      },
       { path: 'organization', pathMatch: 'full', redirectTo: 'organization/companies' },
       { path: '', pathMatch: 'full', redirectTo: 'organization/companies' },
     ],

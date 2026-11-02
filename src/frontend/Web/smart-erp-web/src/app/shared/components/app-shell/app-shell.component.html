@@ -17,6 +17,24 @@
       <a routerLink="/catalog/product-variants" routerLinkActive="active">◇ {{ translation.t('menu','productVariants') }}</a>
       <a routerLink="/catalog/pricing" routerLinkActive="active">$ {{ translation.t('menu','pricing') }}</a>
       <a routerLink="/catalog/tax-configuration" routerLinkActive="active">% {{ translation.t('menu','taxConfiguration') }}</a>
+      <p>{{ translation.t('menu','inventoryManagement') }}</p>
+      <a routerLink="/inventory/stock-balances" routerLinkActive="active">▤ {{ translation.t('menu','stockBalances') }}</a>
+      <a routerLink="/inventory/stock-movements" routerLinkActive="active">⇅ {{ translation.t('menu','stockMovements') }}</a>
+      <a routerLink="/inventory/transfers" routerLinkActive="active">⇄ {{ translation.t('menu','transfers') }}</a>
+      <a routerLink="/inventory/stock-adjustments" routerLinkActive="active">± {{ translation.t('menu','stockAdjustments') }}</a>
+      <a routerLink="/inventory/reservations" routerLinkActive="active">◷ {{ translation.t('menu','reservations') }}</a>
+      <a routerLink="/inventory/batch-lot-tracking" routerLinkActive="active">▧ {{ translation.t('menu','batchLotTracking') }}</a>
+      <a routerLink="/inventory/serial-numbers" routerLinkActive="active"># {{ translation.t('menu','serialNumbers') }}</a>
+      <a routerLink="/inventory/expiration-dates" routerLinkActive="active">◴ {{ translation.t('menu','expirationDates') }}</a>
+      <a routerLink="/inventory/minimum-stock-alerts" routerLinkActive="active">⚠ {{ translation.t('menu','minimumStockAlerts') }}</a>
+      <p>{{ translation.t('menu','purchasing') }}</p>
+      <a routerLink="/purchasing/suppliers" routerLinkActive="active">♙ {{ translation.t('menu','suppliers') }}</a>
+      <a routerLink="/purchasing/purchase-requests" routerLinkActive="active">? {{ translation.t('menu','purchaseRequests') }}</a>
+      <a routerLink="/purchasing/purchase-orders" routerLinkActive="active">▨ {{ translation.t('menu','purchaseOrders') }}</a>
+      <a routerLink="/purchasing/goods-receipts" routerLinkActive="active">✓ {{ translation.t('menu','goodsReceipts') }}</a>
+      <a routerLink="/purchasing/purchase-returns" routerLinkActive="active">↩ {{ translation.t('menu','purchaseReturns') }}</a>
+      <a routerLink="/purchasing/supplier-invoices" routerLinkActive="active">$ {{ translation.t('menu','supplierInvoices') }}</a>
+      <a routerLink="/purchasing/approval-workflow" routerLinkActive="active">◆ {{ translation.t('menu','approvalWorkflow') }}</a>
       <p>{{ translation.t('labels','accountSecurity') }}</p>
       <a routerLink="/account/sessions" routerLinkActive="active">◉ {{ translation.t('labels','sessionsTitle') }}</a>
     </nav>

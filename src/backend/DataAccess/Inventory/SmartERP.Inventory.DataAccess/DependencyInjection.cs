@@ -19,6 +19,7 @@ public static class DependencyInjection
             sql.EnableRetryOnFailure(5,TimeSpan.FromSeconds(10),null);
         }));
         services.AddScoped<ICatalogRepository,CatalogRepository>();
+        services.AddScoped<IOperationalRecordRepository,OperationalRecordRepository>();
         return services;
     }
 }

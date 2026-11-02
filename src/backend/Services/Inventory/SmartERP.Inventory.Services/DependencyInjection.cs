@@ -9,6 +9,7 @@ public static class DependencyInjection
     public static IServiceCollection AddInventoryServices(this IServiceCollection services)
     {
         services.AddScoped<ICatalogService,CatalogService>();
+        services.AddScoped<IOperationalRecordService,OperationalRecordService>();
         return services;
     }
 }
