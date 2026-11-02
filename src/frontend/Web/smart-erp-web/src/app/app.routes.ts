@@ -93,6 +93,16 @@ export const routes: Routes = [
         canActivate: [currentCompanyGuard],
         loadComponent: () => import('./features/operations/pages/operational-record-list/operational-record-list.component').then((component) => component.OperationalRecordListComponent),
       },
+      {
+        path: 'sales/:type',
+        canActivate: [currentCompanyGuard],
+        loadComponent: () => import('./features/sales-accounting/pages/sales-financial-list/sales-financial-list.component').then((component) => component.SalesFinancialListComponent),
+      },
+      {
+        path: 'accounting/:type',
+        canActivate: [currentCompanyGuard],
+        loadComponent: () => import('./features/sales-accounting/pages/sales-financial-list/sales-financial-list.component').then((component) => component.SalesFinancialListComponent),
+      },
       { path: 'organization', pathMatch: 'full', redirectTo: 'organization/companies' },
       { path: '', pathMatch: 'full', redirectTo: 'organization/companies' },
     ],

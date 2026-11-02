@@ -1,0 +1,3 @@
+using SmartERP.Sales.Domain.Enums;using SmartERP.Sales.Services.DTO;
+namespace SmartERP.Sales.Services.Interfaces;
+public interface ISalesFinancialRecordService { Task<IReadOnlyList<SalesFinancialRecordResponseDto>> ListAsync(int c,SalesFinancialRecordType t,CancellationToken token=default);Task<SalesFinancialRecordResponseDto> CreateAsync(int c,int u,SalesFinancialRecordType t,UpsertSalesFinancialRecordRequestDto r,CancellationToken token=default);Task<SalesFinancialRecordResponseDto> UpdateAsync(int c,int u,long id,UpsertSalesFinancialRecordRequestDto r,CancellationToken token=default);Task SetActiveAsync(int c,int u,long id,bool active,CancellationToken token=default); }

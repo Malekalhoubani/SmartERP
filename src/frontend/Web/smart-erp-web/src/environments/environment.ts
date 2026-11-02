@@ -5,4 +5,5 @@ export const environment = {
   identityApiUrl: `${gatewayApiUrl}/identity/api/auth`,
   organizationApiUrl: `${gatewayApiUrl}/organization/api`,
   inventoryApiUrl: `${gatewayApiUrl}/inventory/api`,
+  salesApiUrl: `${gatewayApiUrl}/sales/api`,
 };

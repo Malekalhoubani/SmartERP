@@ -1,0 +1,3 @@
+using Microsoft.EntityFrameworkCore; using Microsoft.EntityFrameworkCore.Design;
+namespace SmartERP.Sales.DataAccess.Contexts;
+public sealed class SalesDbContextFactory:IDesignTimeDbContextFactory<SalesDbContext> { public SalesDbContext CreateDbContext(string[] args) { var connection=Environment.GetEnvironmentVariable("SMARTERP_SALES_CONNECTION")??"Server=localhost;Database=SmartERPSalesDb;Trusted_Connection=True;TrustServerCertificate=True;MultipleActiveResultSets=True"; return new SalesDbContext(new DbContextOptionsBuilder<SalesDbContext>().UseSqlServer(connection,sql=>sql.MigrationsAssembly(typeof(SalesDbContext).Assembly.FullName)).Options); } }

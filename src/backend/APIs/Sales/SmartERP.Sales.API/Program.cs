@@ -1,3 +1,4 @@
-var builder = WebApplication.CreateBuilder(args);
-var app = builder.Build();
-app.Run();
+using Microsoft.EntityFrameworkCore;
+using SmartERP.Sales.API.Authentication;using SmartERP.Sales.API.Endpoints;using SmartERP.Sales.DataAccess;using SmartERP.Sales.DataAccess.Contexts;using SmartERP.Sales.Services;using SmartERP.ServiceDefaults;using SmartERP.ServiceDefaults.FoundationOptions;
+var builder=WebApplication.CreateBuilder(args);builder.AddSmartErpFoundation();builder.AddSalesAuthentication();builder.Services.AddSalesDataAccess(builder.Configuration);builder.Services.AddSalesServices();builder.Services.AddHttpContextAccessor();builder.Services.AddScoped<IRequestContext,RequestContext>();builder.Services.AddScoped<ICompanyAccessValidator,CompanyAccessValidator>();builder.Services.AddHttpClient("OrganizationAccess",client=>{client.BaseAddress=new Uri(builder.Configuration["Services:OrganizationBaseUrl"]??throw new InvalidOperationException("Services:OrganizationBaseUrl is required."));client.Timeout=TimeSpan.FromSeconds(10);});
+var app=builder.Build();app.UseSmartErpFoundation();app.UseAuthentication();app.UseAuthorization();app.MapSmartErpFoundation("SmartERP Sales API");app.MapSalesFinancialEndpoints();if(app.Environment.IsDevelopment()){await using var scope=app.Services.CreateAsyncScope();await scope.ServiceProvider.GetRequiredService<SalesDbContext>().Database.MigrateAsync();}app.Run();public partial class Program{}

@@ -4,12 +4,17 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <UserSecretsId>5ad0e277-21e1-4582-b4b5-0a2d9f5e276a</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\..\Services\Sales\SmartERP.Sales.Services\SmartERP.Sales.Services.csproj" />
     <ProjectReference Include="..\..\..\DataAccess\Sales\SmartERP.Sales.DataAccess\SmartERP.Sales.DataAccess.csproj" />
     <ProjectReference Include="..\..\..\Config\SmartERP.ServiceDefaults\SmartERP.ServiceDefaults.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.22" />
   </ItemGroup>
 
 </Project>

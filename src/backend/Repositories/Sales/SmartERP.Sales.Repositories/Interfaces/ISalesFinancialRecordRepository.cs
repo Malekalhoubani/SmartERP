@@ -1,0 +1,3 @@
+using SmartERP.Sales.Domain.Entities; using SmartERP.Sales.Domain.Enums;
+namespace SmartERP.Sales.Repositories.Interfaces;
+public interface ISalesFinancialRecordRepository { Task<IReadOnlyList<SalesFinancialRecord>> ListAsync(int companyId,SalesFinancialRecordType type,CancellationToken token=default); Task<SalesFinancialRecord?> FindAsync(int companyId,long id,CancellationToken token=default); Task<bool> CodeExistsAsync(int companyId,SalesFinancialRecordType type,string code,long? excludedId=null,CancellationToken token=default); Task AddAsync(SalesFinancialRecord record,CancellationToken token=default); Task SaveChangesAsync(CancellationToken token=default); }
