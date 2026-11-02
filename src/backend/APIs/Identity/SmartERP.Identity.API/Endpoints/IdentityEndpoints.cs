@@ -355,9 +355,13 @@ public static class IdentityEndpoints
         HttpContext httpContext,
         CancellationToken cancellationToken)
     {
-        var refreshToken = GetRequiredRefreshToken(
-            httpContext.Request,
-            refreshTokenOptions.Value.CookieName);
+        if (!TryGetRefreshToken(
+                httpContext.Request,
+                refreshTokenOptions.Value.CookieName,
+                out var refreshToken))
+        {
+            return Results.Unauthorized();
+        }
 
         var result = await sessionService.RefreshAsync(
             refreshToken,
@@ -457,18 +461,20 @@ public static class IdentityEndpoints
         return Results.NoContent();
     }
 
-    private static string GetRequiredRefreshToken(
+    private static bool TryGetRefreshToken(
         HttpRequest request,
-        string cookieName)
+        string cookieName,
+        out string refreshToken)
     {
-        if (!request.Cookies.TryGetValue(cookieName, out var refreshToken) ||
-            string.IsNullOrWhiteSpace(refreshToken))
+        if (request.Cookies.TryGetValue(cookieName, out var value) &&
+            !string.IsNullOrWhiteSpace(value))
         {
-            throw new UnauthorizedAccessException(
-                "Refresh token cookie is required.");
+            refreshToken = value;
+            return true;
         }
 
-        return refreshToken;
+        refreshToken = string.Empty;
+        return false;
     }
 
     private static int GetRequiredIntClaim(
